@@ -1,0 +1,23 @@
+For debugging:
+
+- Put phone in developer mode:
+  Tap 7 times on the Build code in the system settings
+  Enable USB debugging
+  Enable screen always on when charging
+
+- Launch chrome
+  Open developer tools
+  Menu -> More tools -> Remote devices
+
+- Connect phone via USB
+  Answer prompts
+
+- Get green dot by phone
+  Click on device
+  Select the tab to examine
+
+To release:
+  npm run build
+
+To hot load:
+  npm run dev-hot
