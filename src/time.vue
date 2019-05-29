@@ -78,11 +78,11 @@ console.log("Scale:", this.xScale, this.yScale)
       inertia: true,
       onmove: event => {this.$emit('drag', event)}
     })
-    this.timer = setInterval(() => {
-console.log("Interval:", this.curTime)
-      this.curTime -= 1
-      if (this.curTime <= 0) clearInterval(this.timer)
-    }, 50)
+//    this.timer = setInterval(() => {		//Animate the hourglass
+//console.log("Interval:", this.curTime)
+//      this.curTime -= 1
+//      if (this.curTime <= 0) clearInterval(this.timer)
+//    }, 50)
   }
 }
 

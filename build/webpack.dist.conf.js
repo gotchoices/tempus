@@ -4,10 +4,10 @@ const nodeExternals = require('webpack-node-externals')
 const Common = require('./common')
                 
 module.exports = {
-  entry: './src/stringer.js',
+  entry: './src/tempus.js',
   output: {
     path: path.join(__dirname, '..', 'dist'),
-    filename: 'stringer-bundle.js'
+    filename: 'tempus-bundle.js'
   },
 //  externals: [nodeExternals()],
   devtool: 'source-map',

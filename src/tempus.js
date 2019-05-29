@@ -8,7 +8,7 @@ Vue.config.productionTip = false
 
 const Template = `
   <div class="tempus">
-    Hello World!
+    <tempus-menu/>
     <svg class="tempus tempus-board" :viewBox="viewCoords">
       <tempus-time x="10" y="10" size="100" @drag="doDrag"/>
     </svg>
@@ -17,11 +17,12 @@ const Template = `
 //    <tempus-cap/>
 
 import TempusTime from './time.vue'
+import TempusMenu from './menu.vue'
 
 const Config = {
   el: '#app',
   template: Template,
-  components: { 'tempus-time': TempusTime},
+  components: { 'tempus-time': TempusTime, 'tempus-menu': TempusMenu},
   data() { return {
     minX:	0,
     minY:	0,
