@@ -6,7 +6,7 @@
 
 <template>
 
-  <g class="building">
+  <g class="building" v-show="showBuilding">
     <rect style="fill:#94afd1;fill-opacity:1;stroke-width:0.26458332"
     :width="boxWidth"
     :height="boxHeight"
@@ -20,10 +20,10 @@
     :width="boxWidth"
     :height="boxHeight"
     :x="position"
-    :y="y + 80"
+    :y="y + 60"
     ry="1.7936023"
     />
-    <text :x="position + 5" :y="y + 90" fill="black" font-size="10px"> {{commodityTitle}} </text>
+    <text :x="position + 5" :y="y + 70" fill="black" font-size="10px"> {{commodityTitle}} </text>
   </g>
 
 </template>
@@ -32,14 +32,14 @@
 
 export default {
   name: 'tempus-building',
-  props: ['title', 'position', 'commodityTitle',],
+  props: ['title', 'position', 'commodityTitle', 'showBuilding'],
   data() { return {
-    y: 80,
+    y: 70,
     boxHeight: 40,
     boxWidth: 40,
   }},
   computed: {
-    connectingLine: function() {return `M ${this.position + 20}, ${this.y + this.boxHeight} V ${this.y + this.boxHeight * 2} Z`}
+    connectingLine: function() {return `M ${this.position + 20}, ${this.y + this.boxHeight} V ${this.y + this.boxHeight + 20} Z`}
   },
 
   methods: {

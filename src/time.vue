@@ -2,12 +2,12 @@
 //Copyright Kyle Bateman; all rights reserved
 // -----------------------------------------------------------------------------
 //TODO:
-//- 
+//-
 
 // SVG code borrowed from: https://codepen.io/chrisgannon/pen/bdaXMQ/
 <template>
   <g class="tempus-time" :transform="transform">
-    
+
     <defs>
       <clipPath id="topMask">
         <path class="topMask" fill="#6D00BF" d="M316.7,266.3c-0.2,0.1-3.7,1.5-4.8,2.5c0,0,0,0,0,0.1c-1.8,1.5-3.2,4.5-3.2,7.1l-1.6,0l-1.4,0c0-2.6-1.4-5.6-3.2-7.1c0,0,0-0.1,0-0.1c-1.1-1-4.6-2.5-4.8-2.5C237.1,249.5,195,174,188,91h119h119.3C419.3,174,377.2,249.5,316.7,266.3z"/>
@@ -18,9 +18,9 @@
     <g clip-path="url(#topMask)">
       <rect class="topSand" x="0" :y="sandPos" fill="#F7E0B7" width="600" height="185"/>
     </g>
-    
+
     <rect class="top" x="175" y="70" fill="#F1AF31" width="263" height="21"/>
-    <line class="drip" fill="none" stroke="#F7E0B7" stroke-width="2" stroke-miterlimit="10" x1="307" y1="275" x2="307" y2="460"/>  
+    <line class="drip" fill="none" stroke="#F7E0B7" stroke-width="2" stroke-miterlimit="10" x1="307" y1="275" x2="307" y2="460"/>
     <path class="body" opacity="0.23" fill="#FFFFFF" d="M432.2,459 H180.8 c4.3-90,49.8-165,108.7-175.2 c6.1-1,10.3-5.2,10.3-8.8 c0-3-4.2-7.8-10.3-8.8 C230.6,256,185.2,180.5,180.8,91h251.3 c-4.3,89.6-49.7,166.3-108.8,175.2 c-6,0.9-10.2,6.1-10.2,8.8 c0,2.7,4.3,7.9,10.2,8.8 C382.5,292.7,427.8,369,432.2,459z"/>
 
     <path class="topShadow" fill="#121212" opacity="0.12" d="M432.5,91h-252c0.3,4.1,0.8,8.8,1.4,14h249.3C432,98.3,432.2,95,432.5,91z"/>
