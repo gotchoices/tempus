@@ -7,6 +7,8 @@
 <template>
 
   <g class="building" v-show="showBuilding">
+    <path fill="black" stroke="black" stroke-width:1 :d="upArrow" />
+    <path fill="black" stroke="black" stroke-width:1 :d="downArrow" />
     <rect style="fill:#94afd1;fill-opacity:1;stroke-width:0.26458332"
     :width="boxWidth"
     :height="boxHeight"
@@ -39,7 +41,14 @@ export default {
     boxWidth: 30,
   }},
   computed: {
-    connectingLine: function() {return `M ${this.position + (this.boxHeight / 2)}, ${this.y + this.boxHeight} V ${this.y + this.boxHeight + (this.boxHeight)} Z`}
+    connectingLine: function() {return `M ${this.position + (this.boxWidth / 2)}, ${this.y + this.boxHeight}
+     V ${this.y + this.boxHeight + (this.boxHeight)} Z`},
+    upArrow: function() {return `M ${this.position + this.boxWidth/2 + this.boxWidth*(1/16)}, ${this.y - this.boxHeight/20}
+     H ${this.position + this.boxWidth/2 + this.boxWidth*(3/16)}
+     L ${this.position + this.boxWidth/2 + this.boxWidth*(2/16)}, ${this.y - this.boxHeight/20 - this.boxWidth*(1/16)} Z`},
+    downArrow: function() {return `M ${this.position + this.boxWidth/2 + this.boxWidth*(5/16)}, ${this.y - this.boxHeight/20}
+     L ${this.position + this.boxWidth/2 + this.boxWidth*(6/16)}, ${this.y - this.boxHeight/20 - this.boxWidth*(1/16)}
+     H ${this.position + this.boxWidth/2 + this.boxWidth*(4/16)} Z`}
   },
 
   methods: {
