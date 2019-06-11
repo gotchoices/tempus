@@ -43,7 +43,7 @@ export default {
     x:		{default: 0},
     y:		{default: 0},
     size:	{default: 50},
-    startTime:	{default: 100},
+    startTime:	{default: 500},
   },
   data() { return {
     drag:	false,
@@ -78,11 +78,11 @@ console.log("Scale:", this.xScale, this.yScale)
       inertia: true,
       onmove: event => {this.$emit('drag', event)}
     })
-//    this.timer = setInterval(() => {		//Animate the hourglass
-//console.log("Interval:", this.curTime)
-//      this.curTime -= 1
-//      if (this.curTime <= 0) clearInterval(this.timer)
-//    }, 50)
+    this.timer = setInterval(() => {		//Animate the hourglass
+      //console.log("Interval:", this.curTime)
+      this.curTime -= 1
+      if (this.curTime <= 0) clearInterval(this.timer)
+    }, 500)
   }
 }
 

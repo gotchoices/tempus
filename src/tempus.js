@@ -8,7 +8,10 @@ Vue.config.productionTip = false
 
 const Template = `
   <div class="tempus">
-    <tempus-menu v-on:addBuilding="addBuilding"/>
+    <span class="open" @click="subMenu('main')">
+      <img class="icon" :src="menuIcon" />
+    </span>
+    <tempus-menu v-on:sub-menu="subMenu" :config="config" :depth="depth"/>
     <button @click="addBuilding(0)"> Show Farm </button>
     <button @click="addBuilding(1)"> Show Factory </button>
     <svg class="tempus tempus-board" :viewBox="viewCoords">
@@ -18,11 +21,11 @@ const Template = `
       v-for="(building, index) in showingBuildings(buildings)"
       :key="building.id"
       :title="building.title"
-      :position="building.position + (index * 70)"
+      :position="building.position + (index * 50)"
       :commodityTitle="building.commodityTitle"
       :showBuilding="building.showBuilding"
       />
-    <tempus-values/>
+    <tempus-values v-bind="val"/>
     </svg>
   </div>
 `
@@ -36,18 +39,28 @@ var BuildingStartPos = 70
 const Config = {
   el: '#app',
   template: Template,
-  components: { 'tempus-time': TempusTime, 'tempus-menu': TempusMenu, 'tempus-building': TempusBuilding, 'tempus-values': TempusValues,},
+  components: { 'tempus-time': TempusTime, 'tempus-menu': TempusMenu,
+    'tempus-building': TempusBuilding, 'tempus-values': TempusValues,},
   data() { return {
     minX:	0,
     minY:	0,
     maxX:	300,
     maxY:	300,
+    menuIcon: 'icons/right-arrow.png',
     showFarm: false,
     showFactory: false,
     buildings: [
       {id: 0, title: 'Farm', commodityTitle: 'Food', position: BuildingStartPos, showBuilding: false,},
       {id: 1, title: 'Factory', commodityTitle: 'Materials', position: BuildingStartPos, showBuilding: false,},
     ],
+    //menu props
+    depth: 0,
+    config: [
+      {index:1, show: false, code: 'main', title: 'Menu', children:
+        [{name: 'Buildings', code: 'build'},{name: 'Settings', code: 'set'},{name: 'Scores', code: 'score'},]},
+      {index:2, show: false, code: 'build', title: 'Buildings', children: ['Farm', 'Factory',]}
+    ],
+    val: {x: 10, y: 200, ry: 1.8, width: 255, height: 40,},
   }},
   computed: {
     width: function() {return this.maxX - this.minX},
@@ -69,6 +82,13 @@ const Config = {
     doDrag(e) {
       console.log("Dragging:", e)
       //Insert code here to move item x,y location
+    },
+    subMenu(code) {
+      for(var i = 0; i < config.length; i++) {
+        if (code === config[i].code) {
+          config[i].show = !config[i].show
+        }
+      }
     },
     addBuilding(index) {
       this.buildings[index].showBuilding = !this.buildings[index].showBuilding

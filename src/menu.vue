@@ -6,40 +6,40 @@
 
 <template>
 <div>
+<div>
   <div id="mySidenav" class="sidenav" :style="slideStyle">
-   <a href="javascript:void(0)" class="closebtn" @click="toggleNav" >&times;</a>
-   <div class="sidenavButtons"
-   v-for="item in menuItems"
-   v-on:click="openSubMenu">
-   {{item.title}} </div>
-  </div>
-  <div id="buildingSidenav" class="sidenav" style="width: 0">
-    <a href="javascript:void(0)" class="closebtn" @click="toggleNav" >&times;</a>
+    <span>
+      <img class="icon closebtn" :src="backIcon" @click="$emit('sub-menu', config.code)"/>
+    </span>
+    <span class="sidenavTitle"> {{config[depth].title}} </span>
     <div class="sidenavButtons"
-    v-for="item in buildingItems"
-    v-on:click="$emit('addBuilding', item.index)">
-    {{item.title}} </div>
+      v-for="(item, index) in config[depth].children"
+      v-on:click="$emit('sub-menu', item.config.children[index].code)">
+      {{item}} </div>
   </div>
 
-  <span class="open" @click="toggleNav">
-    <img class="icon" :src="menuIcon" />
-  </span>
 </div>
-
+</div>
 </template>
 
 <script>
 
 export default {
   name: 'tempus-menu',
-  props: {
-  },
+  props: ['depth', 'config'],
   data() { return {
     navOpen: false,
-    menuIcon: 'icons/right-arrow.png',
-    menuWidth: 0
+    backIcon: 'icons/left-arrow.png',
   }},
   computed: {
+    menuWidth: function() {
+      if(config.show) {
+        return 250
+      }
+      else {
+        return 0
+      }
+    },
     slideStyle: function() {return{
       width: this.menuWidth + 'px'
     }},
@@ -60,7 +60,7 @@ export default {
     },
     toggleNav: function() {
       this.navOpen = !this.navOpen
-      console.log("Nav toggled:", this.navOpen)
+      console.log("Nav toggled:", this.navOpen, " menuWidth: " , this.menuWidth)
       if(this.navOpen) {
         this.menuWidth = 250
       }

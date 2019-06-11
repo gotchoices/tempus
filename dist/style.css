@@ -30,7 +30,7 @@ body {
  z-index: 1; /* Stay on top */
  top: 0; /* Stay at the top */
  left: 0;
- background-color: #111; /* Black*/
+ background-color: #7a7a7a; /* Black*/
  overflow-x: hidden; /* Disable horizontal scroll */
  padding-top: 60px; /* Place content 60px from the top */
  transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
@@ -41,7 +41,7 @@ body {
  padding: 8px 8px 8px 32px;
  text-decoration: none;
  font-size: 25px;
- color: #818181;
+ color: black;
  display: block;
  transition: 0.3s;
 }
@@ -51,8 +51,19 @@ body {
  color: #f1f1f1;
 }
 
+.sidenavTitle {
+  color: black;
+  font-size: 30px;
+  display: block;
+  position: absolute;
+  top: 6px;
+  right: 120px;
+  margin-left: 50px;
+  font-family: sans-serif;
+}
+
 /* The navigation menu close button */
-.sidenav a {
+.sidenav img {
  padding: 8px 8px 8px 32px;
  text-decoration: none;
  font-size: 25px;
@@ -61,16 +72,11 @@ body {
  transition: 0.3s;
 }
 
-/* When you mouse over the close button, change its color */
-.sidenav a:hover {
- color: #f1f1f1;
-}
-
-/* Position and style the close button (top right corner) */
+/* Position and style the close button (top left corner) */
 .sidenav .closebtn {
  position: absolute;
  top: 0;
- right: 25px;
+ right: 205px;
  font-size: 36px;
  margin-left: 50px;
 }
