@@ -80,6 +80,7 @@ console.log("Scale:", this.xScale, this.yScale)
     })
     this.timer = setInterval(() => {		//Animate the hourglass
       //console.log("Interval:", this.curTime)
+      //console.log("hourglass-sandPos:", this.sandPos)
       this.curTime -= 1
       if (this.curTime <= 0) clearInterval(this.timer)
     }, 500)

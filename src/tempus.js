@@ -11,7 +11,7 @@ const Template = `
     <span class="open" @click="subMenu('main')">
       <img class="icon" :src="menuIcon" />
     </span>
-    <tempus-menu v-on:sub-menu="subMenu" :config="config" :depth="depth"/>
+    <!-- <tempus-menu v-on:sub-menu="subMenu" :config="config" :depth="depth"/> -->
     <button @click="addBuilding(0)"> Show Farm </button>
     <button @click="addBuilding(1)"> Show Factory </button>
     <svg class="tempus tempus-board" :viewBox="viewCoords">

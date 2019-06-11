@@ -51,7 +51,7 @@ export default {
   }},
   computed: {
     sandPos: function () {
-      return (this.newY) + ((this.startTime - this.curTime) * (230 - this.newY / 100))
+      return (this.newY) + ((this.startTime - this.curTime) * (230 - this.newY) / 100)
     },
     newY: function() {
       return this.y + 5
@@ -62,8 +62,9 @@ export default {
   },
 
   mounted: function() {
-    this.timer = setInterval(() => {		//Animate the hourglass
+    this.timer = setInterval(() => {		//Animate the health val
       //console.log("Interval:", this.curTime)
+      //console.log("sandPos:", this.sandPos)
       this.curTime -= 1
       if (this.curTime <= 0) clearInterval(this.timer)
     }, 500)
