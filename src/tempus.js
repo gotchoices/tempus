@@ -19,11 +19,15 @@ const Template = `
       <tempus-time x="1" y="1" size="50" @drag="doDrag"/>
       <tempus-building
       v-for="(building, index) in showingBuildings(buildings)"
+      v-on:increment-percent="incrementPercent"
+      v-on:decrement-percent="decrementPercent"
       :key="building.id"
       :title="building.title"
       :position="building.position + (index * 50)"
       :commodityTitle="building.commodityTitle"
       :showBuilding="building.showBuilding"
+      :index="index"
+      :percent="building.percent"
       />
     <tempus-values v-bind="val"/>
     </svg>
@@ -50,8 +54,8 @@ const Config = {
     showFarm: false,
     showFactory: false,
     buildings: [
-      {id: 0, title: 'Farm', commodityTitle: 'Food', position: BuildingStartPos, showBuilding: false,},
-      {id: 1, title: 'Factory', commodityTitle: 'Materials', position: BuildingStartPos, showBuilding: false,},
+      {id: 0, title: 'Farm', commodityTitle: 'Food', position: BuildingStartPos, showBuilding: false, percent: 0,},
+      {id: 1, title: 'Factory', commodityTitle: 'Materials', position: BuildingStartPos, showBuilding: false, percent: 0,},
     ],
     //menu props
     depth: 0,
@@ -98,6 +102,24 @@ const Config = {
         return building.showBuilding === true
       })
     },
+    incrementPercent: function(index) {
+      if (this.buildings[index].percent >= 100) {
+        return
+      }
+      else {
+        this.buildings[index].percent += 5
+      }
+      //console.log("Percent:", this.buildings[index].percent)
+    },
+    decrementPercent: function(index) {
+      if (this.buildings[index].percent <= 0) {
+        return
+      }
+      else {
+        this.buildings[index].percent -= 5
+      }
+      //console.log("Percent:", this.buildings[index].percent)
+    }
   },
   watch: {
     x: function(val) {
