@@ -39,6 +39,7 @@
 <script>
 
 import	Interact from 'interactjs'
+const Timer = require('./timer.js')
 
 export default {
   name: 'tempus-values',
@@ -48,6 +49,7 @@ export default {
     timer: null,
     startTime: 500,
     curTime: 500,
+    timeCounter: 0,
   }},
   computed: {
     sandPos: function () {
@@ -62,12 +64,14 @@ export default {
   },
 
   mounted: function() {
-    this.timer = setInterval(() => {		//Animate the health val
-      //console.log("Interval:", this.curTime)
-      //console.log("sandPos:", this.sandPos)
-      this.curTime -= 1
-      if (this.curTime <= 0) clearInterval(this.timer)
-    }, 500)
+    Timer.register('health', ()=>{
+      if (this.timeCounter%100 === 0) { //once every second
+        this.curTime -= 1
+        //console.log('curTime:', this.curTime)
+      }
+      this.timeCounter++
+      if (this.curTime <= 0) Timer.register('health')
+    })
   }
 }
 

@@ -8,8 +8,8 @@
 
   <g class="building" v-show="showBuilding">
     <text class="percentage" :x="position + 1" :y="y - 1" fill="black" font-size="5px"> {{percent}}% </text>
-    <path fill="black" stroke="black" stroke-width:1 :d="upArrow" @click="$emit('increment-percent', index)"/>
-    <path fill="black" stroke="black" stroke-width:1 :d="downArrow" @click="$emit('decrement-percent', index)"/>
+    <path class="percentArrow" fill="black" stroke="black" stroke-width:1 :d="upArrow" @click="$emit('increment-percent', id)"/>
+    <path class="percentArrow" fill="black" stroke="black" stroke-width:1 :d="downArrow" @click="$emit('decrement-percent', id)"/>
     <rect style="fill:#94afd1;fill-opacity:1;stroke-width:0.26458332"
     :width="boxWidth"
     :height="boxHeight"
@@ -35,7 +35,7 @@
 
 export default {
   name: 'tempus-building',
-  props: ['title', 'position', 'commodityTitle', 'showBuilding', 'index', 'percent',],
+  props: ['title', 'position', 'commodityTitle', 'showBuilding', 'id', 'percent',],
   data() { return {
     y: 70,
     boxHeight: 30,

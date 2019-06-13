@@ -11,9 +11,10 @@ const Template = `
     <span class="open" @click="subMenu('main')">
       <img class="icon" :src="menuIcon" />
     </span>
+    <button @click="startTimer"> Start Timer </button>
     <!-- <tempus-menu v-on:sub-menu="subMenu" :config="config" :depth="depth"/> -->
-    <button @click="addBuilding(0)"> Show Farm </button>
-    <button @click="addBuilding(1)"> Show Factory </button>
+    <button @click="addBuilding(0)"> Toggle Farm </button>
+    <button @click="addBuilding(1)"> Toggle Factory </button>
     <svg class="tempus tempus-board" :viewBox="viewCoords">
       <path fill="none" stroke="blue" :d="svgOutline"> </path>
       <tempus-time x="1" y="1" size="50" @drag="doDrag"/>
@@ -26,7 +27,7 @@ const Template = `
       :position="building.position + (index * 50)"
       :commodityTitle="building.commodityTitle"
       :showBuilding="building.showBuilding"
-      :index="index"
+      :id="building.id"
       :percent="building.percent"
       />
     <tempus-values v-bind="val"/>
@@ -39,6 +40,7 @@ import TempusMenu from './menu.vue'
 import TempusBuilding from './building.vue'
 import TempusValues from './values.vue'
 var BuildingStartPos = 70
+const Timer = require('./timer.js')
 
 const Config = {
   el: '#app',
@@ -95,6 +97,7 @@ const Config = {
       }
     },
     addBuilding(index) {
+      this.buildings[index].percent = 0
       this.buildings[index].showBuilding = !this.buildings[index].showBuilding
     },
     showingBuildings: function(buildings) {
@@ -103,7 +106,8 @@ const Config = {
       })
     },
     incrementPercent: function(index) {
-      if (this.buildings[index].percent >= 100) {
+      var totalPercent = this.findTotalPercent()
+      if (totalPercent >= 100) {
         return
       }
       else {
@@ -119,7 +123,19 @@ const Config = {
         this.buildings[index].percent -= 5
       }
       //console.log("Percent:", this.buildings[index].percent)
-    }
+    },
+    findTotalPercent: function() {
+      var i;
+      var totalPercent = 0
+      for (i = 0; i < this.buildings.length; i++) {
+        totalPercent += this.buildings[i].percent
+      }
+      //console.log("findTotalPercent:", totalPercent)
+      return totalPercent
+    },
+    startTimer: function() {
+      Timer.start(10)
+    },
   },
   watch: {
     x: function(val) {

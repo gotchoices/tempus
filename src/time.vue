@@ -34,6 +34,7 @@
 
 <script>
 import	Interact from 'interactjs'
+const Timer = require('./timer.js')
 const	NativeSVG = 600					//Original SVG size
 
 export default {
@@ -52,6 +53,7 @@ export default {
     yScale:	this.size / NativeSVG,
     curTime:	this.startTime,
     timer:	null,
+    timeCounter: 0,
   }},
   computed: {
     transform: function() {				//Moves the object around when we change x or y
@@ -73,17 +75,19 @@ console.log("Scale:", this.xScale, this.yScale)
   },
 
   mounted: function() {
-//console.log("Node Mount:", this.state)
+    //console.log("Node Mount:", this.state)
     Interact(this.$el).draggable({
       inertia: true,
       onmove: event => {this.$emit('drag', event)}
     })
-    this.timer = setInterval(() => {		//Animate the hourglass
-      //console.log("Interval:", this.curTime)
-      //console.log("hourglass-sandPos:", this.sandPos)
-      this.curTime -= 1
-      if (this.curTime <= 0) clearInterval(this.timer)
-    }, 500)
+    Timer.register('hourglass',()=>{
+      if (this.timeCounter%100 === 0) { //once every second
+        this.curTime -= 1
+        //console.log('curTime:', this.curTime)
+      }
+      this.timeCounter++
+      if (this.curTime <= 0) Timer.register('hourglass')
+    })
   }
 }
 

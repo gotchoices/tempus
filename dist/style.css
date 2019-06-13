@@ -96,3 +96,13 @@ body {
 .percentage {
   font-family: sans-serif;
 }
+
+.percentArrow:hover {
+  fill: gray;
+  stroke: gray;
+}
+
+.percentArrow:active {
+  fill: blue;
+  stroke: blue;
+}
