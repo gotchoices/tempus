@@ -106,3 +106,13 @@ body {
   fill: blue;
   stroke: blue;
 }
+
+.valueSands {
+  position: relative;
+  z-index: 0;
+}
+
+.valueText {
+  position: relative;
+  z-index: 1;
+}

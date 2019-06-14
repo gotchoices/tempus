@@ -12,6 +12,7 @@ const Template = `
       <img class="icon" :src="menuIcon" />
     </span>
     <button @click="startTimer"> Start Timer </button>
+    <button @click="stopTimer"> Stop Timer </button>
     <!-- <tempus-menu v-on:sub-menu="subMenu" :config="config" :depth="depth"/> -->
     <button @click="addBuilding(0)"> Toggle Farm </button>
     <button @click="addBuilding(1)"> Toggle Factory </button>
@@ -30,7 +31,19 @@ const Template = `
       :id="building.id"
       :percent="building.percent"
       />
-    <tempus-values v-bind="val"/>
+      <rect class="valueBar" style="fill:#b8cae0;fill-opacity:1;stroke-width:0.26"
+      :width="val.width" :height="val.height"
+      :x="val.x" :y="val.y" :ry="val.ry"
+      />
+      <tempus-value
+      v-for="(value, index) in values"
+      v-on:increment-percent="incrementPercent"
+      v-on:decrement-percent="decrementPercent"
+      :key="value.id"
+      :data="value"
+      :config="valuesConfig"
+      />
+
     </svg>
   </div>
 `
@@ -38,7 +51,7 @@ const Template = `
 import TempusTime from './time.vue'
 import TempusMenu from './menu.vue'
 import TempusBuilding from './building.vue'
-import TempusValues from './values.vue'
+import TempusValue from './value.vue'
 var BuildingStartPos = 70
 const Timer = require('./timer.js')
 
@@ -46,7 +59,7 @@ const Config = {
   el: '#app',
   template: Template,
   components: { 'tempus-time': TempusTime, 'tempus-menu': TempusMenu,
-    'tempus-building': TempusBuilding, 'tempus-values': TempusValues,},
+    'tempus-building': TempusBuilding, 'tempus-value': TempusValue,},
   data() { return {
     minX:	0,
     minY:	0,
@@ -66,6 +79,14 @@ const Config = {
         [{name: 'Buildings', code: 'build'},{name: 'Settings', code: 'set'},{name: 'Scores', code: 'score'},]},
       {index:2, show: false, code: 'build', title: 'Buildings', children: ['Farm', 'Factory',]}
     ],
+    values: [
+      {id:0, title: 'Idleness', timer: null, arrows: true,},
+      {id:1, title: 'Health', timer: 100, arrows: true,},
+      {id:2, title: 'Comfort', timer: null, arrows: true,},
+      {id:3, title: 'Experiences', timer: null, arrows: true,},
+      {id:4, title: 'Wealth', timer: null, arrows: false,},
+    ],
+    valuesConfig: {x: 10, y: 200, ry: 1.8, width: 40, height: 40,},
     val: {x: 10, y: 200, ry: 1.8, width: 255, height: 40,},
   }},
   computed: {
@@ -135,6 +156,9 @@ const Config = {
     },
     startTimer: function() {
       Timer.start(10)
+    },
+    stopTimer: function() {
+      Timer.stop()
     },
   },
   watch: {

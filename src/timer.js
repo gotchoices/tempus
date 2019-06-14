@@ -6,7 +6,7 @@ var mSeconds = 10000
 
 module.exports={
   start: function(mSeconds) {
-    timerId = setInterval(function() {
+    timerID = setInterval(function() {
       Object.keys(callbacks).forEach(id=>{
         callbacks[id]()
         //console.log("mSeconds", mSeconds)

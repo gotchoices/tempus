@@ -1,4 +1,4 @@
-//Tempus Valorem - Values Bar
+//Tempus Valorem - Value Component
 //Copyright Kyle Bateman; all rights reserved
 // -----------------------------------------------------------------------------
 //TODO:
@@ -6,32 +6,25 @@
 
 <template>
 
-  <g class="values">
+  <g class="value">
 
-    <defs>
+    <defs>  <!--This is for any value that needs a timer -->
       <clipPath id="healthClip">
-        <rect :x="x + 55" :y="y + 5" width="45" height="30"/>
+        <rect :x="config.x + 55" :y="config.y + 5" width="45" height="30"
+        :ry="config.ry" />
       </clipPath>
     </defs>
 
-    <rect style="fill:#b8cae0;fill-opacity:1;stroke-width:0.26458332"
-    :width="width"
-    :height="height"
-    :x="x"
-    :y="y"
-    :ry="ry"
-    />
     <rect style="fill:#94afd1;fill-opacity:1;stroke-width:0.26458332"
-      v-for="(item, index) in values"
-      :x="x + 5 + (index * 50)"
-      :y="y + 5"
+      :x="config.x + 5 + (data.id * 50)"
+      :y="config.y + 5"
       width="45"
       height="30"
-      :ry="ry"
+      :ry="config.ry"
       >
     </rect>
-    <rect :x="x + 55" :y="sandPos" width="45" height="30" fill="#F7E0B7" clip-path="url(#healthClip)" ></rect>
-    <text v-for="item, index) in values" :x="x + (index * 50) + 8" y="215" fill="black" font-size="8px"> {{item}} </text>
+    <rect class="valueSands" :x="config.x + 55" :y="sandPos" width="45" height="30" fill="#F7E0B7" clip-path="url(#healthClip)" ></rect>
+    <text class="valueText" :x="config.x + (data.id * 50) + 8" y="215" fill="black" font-size="8px"> {{data.title}} </text>
   </g>
 
 </template>
@@ -42,10 +35,9 @@ import	Interact from 'interactjs'
 const Timer = require('./timer.js')
 
 export default {
-  name: 'tempus-values',
-  props: ['width', 'height', 'x', 'y', 'ry',],
+  name: 'tempus-value',
+  props: ['config', 'data'],
   data() { return {
-    values: ['Idleness', 'Health', 'Comfort', 'Experiences', 'Wealth',],
     timer: null,
     startTime: 500,
     curTime: 500,
@@ -56,7 +48,7 @@ export default {
       return (this.newY) + ((this.startTime - this.curTime) * (230 - this.newY) / 100)
     },
     newY: function() {
-      return this.y + 5
+      return this.config.y + 5
     }
   },
 
@@ -64,7 +56,7 @@ export default {
   },
 
   mounted: function() {
-    Timer.register('health', ()=>{
+    Timer.register(this.config.title + "_" + this._uid, ()=>{
       if (this.timeCounter%100 === 0) { //once every second
         this.curTime -= 1
         //console.log('curTime:', this.curTime)

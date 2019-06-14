@@ -80,7 +80,7 @@ console.log("Scale:", this.xScale, this.yScale)
       inertia: true,
       onmove: event => {this.$emit('drag', event)}
     })
-    Timer.register('hourglass',()=>{
+    Timer.register("time_" + this._uid,()=>{
       if (this.timeCounter%100 === 0) { //once every second
         this.curTime -= 1
         //console.log('curTime:', this.curTime)
