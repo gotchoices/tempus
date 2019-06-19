@@ -24,8 +24,8 @@
       >
     </rect>
     <rect v-if="data.timer != null" class="valueSands" :x="config.x + 50" :y="sandPos" width="45" height="30" fill="#F7E0B7" clip-path="url(#healthClip)" ></rect>
-    <text class="valueText" :x="config.x + (index * 50) + 3" y="220" fill="black" font-size="8px"> {{data.title}} </text>
-    <text class="percentage" :x="config.x + config.width*(2/3) + index*(50)" :y="config.y + config.height/2" fill="black" font-size="5px"> {{data.percent}}% </text>
+    <text class="valueText" :x="config.x + (index * 50) + 2" y="211" fill="black" font-size="6px"> {{data.title}} </text>
+    <text v-if="data.arrows" class="percentage" :x="config.x + config.width*(2/3) + index*(50) + 2" :y="config.y + config.height/2 + 1" fill="black" font-size="5px"> {{data.percent}}% </text>
     <path v-if="data.arrows" class="percentArrow" fill="black" stroke="black" stroke-width:1 :d="upArrow" @click="$emit('increment-percent', data.id)"/>
     <path v-if="data.arrows" class="percentArrow" fill="black" stroke="black" stroke-width:1 :d="downArrow" @click="$emit('decrement-percent', data.id)"/>
   </g>
@@ -59,17 +59,23 @@ export default {
   },
 
   methods: {
+    everyTick() {
+      this.updateScore()
+    }
   },
 
   mounted: function() {
-    Timer.register(this.config.title + "_" + this._uid, ()=>{
-      if (this.timeCounter%100 === 0) { //once every second
-        this.curTime -= 1
-        //console.log('curTime:', this.curTime)
-      }
-      this.timeCounter++
-      if (this.curTime <= 0) Timer.register('health')
-    })
+    if (this.data.arrows == true) {
+      Timer.register(this.data.title + "_" + this._uid, ()=>{
+        if (this.timeCounter%100 === 0) { //once every second
+          this.curTime -= 1
+          //console.log('curTime:', this.curTime)
+        }
+        this.timeCounter++
+        if (this.curTime <= 0) Timer.register('health')
+        this.everyTick()
+      })
+    }
   }
 }
 

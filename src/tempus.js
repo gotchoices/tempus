@@ -23,15 +23,10 @@ const Template = `
       v-for="(building, index) in showingBuildings(buildings)"
       v-on:increment-percent="incrementPercent"
       v-on:decrement-percent="decrementPercent"
+      v-on:add-commodity="addCommodity"
+      :build="building"
       :key="building.id"
-      :title="building.title"
-      :position="building.position + (index * 50)"
-      :commodityTitle="building.commodityTitle"
-      :commodityAmount="building.commodityAmount"
-      :commodityMax="building.commodityMax"
-      :showBuilding="building.showBuilding"
-      :id="building.id"
-      :percent="building.percent"
+      :index="index"
       />
       <rect class="valueBar" style="fill:#b8cae0;fill-opacity:1;stroke-width:0.26"
       :width="val.width" :height="val.height"
@@ -74,8 +69,8 @@ const Config = {
     timeUsers: [],
     timeUsersIterator: 0,
     buildings: [
-      {id: 0, title: 'Farm', commodityTitle: 'Food', commodityAmount: 0, commodityMax: 50, position: BuildingStartPos, showBuilding: false, percent: 0,},
-      {id: 1, title: 'Factory', commodityTitle: 'Materials', commodityAmount: 0, commodityMax: 40, position: BuildingStartPos, showBuilding: false, percent: 0,},
+      {id: 0, title: 'Farm', commodityTitle: 'Food', commodityAmount: 0, commodityMax: 50, rate: 0.1, position: BuildingStartPos, showBuilding: false, percent: 0,},
+      {id: 1, title: 'Factory', commodityTitle: 'Materials', commodityAmount: 0, commodityMax: 40, rate: 0.1, position: BuildingStartPos, showBuilding: false, percent: 0,},
     ],
     //menu props
     depth: 0,
@@ -203,6 +198,13 @@ const Config = {
       if (this.timeUsersIterator >= this.timeUsers.length) {
         this.timeUsersIterator = 0
       }
+    },
+    addCommodity: function(id, amount) {
+      this.buildings[id].commodityAmount += amount
+      if (this.buildings[id].commodityAmount >= this.buildings[id].commodityMax) {
+        this.buildings[id].commodityAmount = this.buildings[id].commodityMax
+      }
+      //console.log(this.buildings[id].commodityAmount)
     },
     startTimer: function() {
       Timer.start(10)
