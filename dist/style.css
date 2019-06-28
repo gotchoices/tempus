@@ -14,8 +14,8 @@ body {
 }
 
 .icon {
-  height: 30px;
-  width: 30px;
+  height: 20px;
+  width: 20px;
 }
 
 .iconList {
@@ -29,11 +29,18 @@ body {
  position: fixed; /* Stay in place */
  z-index: 1; /* Stay on top */
  top: 0; /* Stay at the top */
- left: 0;
  background-color: #7a7a7a; /* Black*/
  overflow-x: hidden; /* Disable horizontal scroll */
  padding-top: 60px; /* Place content 60px from the top */
  transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
+}
+
+.leftMenu {
+  left: 0;
+}
+
+.rightMenu {
+  right: 0;
 }
 
 /* The navigation menu links */
@@ -105,4 +112,55 @@ body {
 .percentArrow:active {
   fill: blue;
   stroke: blue;
+}
+
+#tradeButton {
+  position: absolute;
+  right: 1px;
+}
+
+.tradeMenu {
+ height: 100%; /* 100% Full-height */
+ width: 250px; /* 0 width - change this with JavaScript */
+ position: fixed; /* Stay in place */
+ z-index: 1; /* Stay on top */
+ top: 0; /* Stay at the top */
+ right: 0;
+ background-color: #F0F0F0;
+ border: 2px solid black;
+ overflow-x: hidden; /* Disable horizontal scroll */
+ padding-top: 60px; /* Place content 60px from the top */
+ transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
+}
+
+.tradeMenuDivider {
+  border: 2px blue solid;
+}
+
+.tradeMenuDivider .top {
+  position: absolute;
+  top: 100px;
+}
+
+.dividerHeading {
+  text-align: center;
+}
+
+.dividerHeading .top {
+  margin-top: 2px;
+}
+
+.offer {
+  border: 2px solid red;
+}
+
+.tradeDialogBox {
+  stroke: black;
+  stroke-width: .5;
+  fill: white;
+}
+
+input {
+  width: 100%;
+  box-sizing: border-box;
 }

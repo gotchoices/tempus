@@ -60,7 +60,7 @@ export default {
 
   methods: {
     everyTick() {
-      this.updateScore()
+      //this.updateScore()
     }
   },
 

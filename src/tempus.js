@@ -14,8 +14,12 @@ const Template = `
     <button @click="startTimer"> Start Timer </button>
     <button @click="stopTimer"> Stop Timer </button>
     <!-- <tempus-menu v-on:sub-menu="subMenu" :config="config" :depth="depth"/> -->
+    <!--<tempus-trade-menu :offers="offers"/>-->
     <button @click="addBuilding(0)"> Toggle Farm </button>
     <button @click="addBuilding(1)"> Toggle Factory </button>
+    <span class="open" id="tradeButton">
+      <img class="icon" src="icons/trading.png"/>
+    </span>
     <svg class="tempus tempus-board" :viewBox="viewCoords">
       <path fill="none" stroke="blue" :d="svgOutline"> </path>
       <tempus-time x="1" y="1" size="50" @drag="doDrag"/>
@@ -24,6 +28,7 @@ const Template = `
       v-on:increment-percent="incrementPercent"
       v-on:decrement-percent="decrementPercent"
       v-on:add-commodity="addCommodity"
+      v-on:toggle-trade-dialog="toggleTradeDialog"
       :build="building"
       :key="building.id"
       :index="index"
@@ -43,6 +48,7 @@ const Template = `
       />
 
     </svg>
+    <tempus-trade-dialog :config="tradeDialogConfig" v-on:toggle-trade-dialog="toggleTradeDialog"/>
   </div>
 `
 
@@ -50,6 +56,8 @@ import TempusTime from './time.vue'
 import TempusMenu from './menu.vue'
 import TempusBuilding from './building.vue'
 import TempusValue from './value.vue'
+import TempusTradeMenu from './tradeMenu.vue'
+import TempusTradeDialog from './tradeDialog.vue'
 var BuildingStartPos = 70
 const Timer = require('./timer.js')
 
@@ -57,7 +65,8 @@ const Config = {
   el: '#app',
   template: Template,
   components: { 'tempus-time': TempusTime, 'tempus-menu': TempusMenu,
-    'tempus-building': TempusBuilding, 'tempus-value': TempusValue,},
+    'tempus-building': TempusBuilding, 'tempus-value': TempusValue,
+    'tempus-trade-menu': TempusTradeMenu, 'tempus-trade-dialog': TempusTradeDialog},
   data() { return {
     minX:	0,
     minY:	0,
@@ -88,6 +97,10 @@ const Config = {
     ],
     valuesConfig: {x: 15, y: 205, ry: 1.8, width: 45, height: 30,},
     val: {x: 10, y: 200, ry: 1.8, width: 255, height: 40,},
+    offers: [
+      {id:0, title: "JonahB", content: "50 Food"},
+    ],
+    tradeDialogConfig: {width: 0, showing: false,}
   }},
   computed: {
     width: function() {return this.maxX - this.minX},
@@ -170,7 +183,12 @@ const Config = {
       if (this.timeUsers[index].percent == 0) {
         return
       }
-
+      //if idleness is 100, add to Health
+      if (this.timeUsers[0].percent == 100 && index == 0) {
+        this.timeUsers[0].percent--
+        this.timeUsers[1].percent++
+        return
+      }
       this.rebalancePercent(index, 'down')
     },
     rebalancePercent: function(index, direction) {
@@ -211,6 +229,16 @@ const Config = {
     },
     stopTimer: function() {
       Timer.stop()
+    },
+    toggleTradeDialog: function() {
+      if (this.tradeDialogConfig.showing == true) {
+        this.tradeDialogConfig.width = 0
+      }
+      else {
+        this.tradeDialogConfig.width = 250
+      }
+      this.tradeDialogConfig.showing = !this.tradeDialogConfig.showing
+      //console.log("width: ", this.tradeDialogConfig.width)
     },
   },
   watch: {

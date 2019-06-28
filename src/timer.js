@@ -19,7 +19,7 @@ module.exports={
       callbacks[id] = callback
     else if (id in callbacks)
       delete callbacks[id]
-    console.log("New Register", id)
+    //console.log("New Register", id)
   },
 
   stop: function() {

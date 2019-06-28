@@ -7,7 +7,7 @@
 <template>
 <div>
 <div>
-  <div id="mySidenav" class="sidenav" :style="slideStyle">
+  <div id="mySidenav" class="sidenav leftMenu" :style="slideStyle">
     <span>
       <img class="icon closebtn" :src="backIcon" @click="$emit('sub-menu', config.code)"/>
     </span>
