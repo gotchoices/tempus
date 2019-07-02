@@ -45,6 +45,8 @@ export default {
     startTime: 500,
     curTime: 500,
     timeCounter: 0,
+    totalScore: 0,
+    reducer: 0.0001
   }},
   computed: {
     sandPos: function () {
@@ -60,7 +62,14 @@ export default {
 
   methods: {
     everyTick() {
-      //this.updateScore()
+      var newScore = this.data.percent * this.data.mltplr * this.reducer
+      if (this.data.scale > 0) {
+        this.totalScore = this.totalScore*1 + newScore
+      }
+      else {
+        this.totalScore = newScore
+      }
+      this.$emit('update-score', this.totalScore)
     }
   },
 

@@ -8,21 +8,26 @@ Vue.config.productionTip = false
 
 const Template = `
   <div class="tempus">
-    <span class="open" @click="subMenu('main')">
+    <span class="open" @click="postMenu(null, null)">
       <img class="icon" :src="menuIcon" />
     </span>
     <button @click="startTimer"> Start Timer </button>
     <button @click="stopTimer"> Stop Timer </button>
-    <!-- <tempus-menu v-on:sub-menu="subMenu" :config="config" :depth="depth"/> -->
-    <!--<tempus-trade-menu :offers="offers"/>-->
-    <button @click="addBuilding(0)"> Toggle Farm </button>
-    <button @click="addBuilding(1)"> Toggle Factory </button>
     <span class="open" id="tradeButton">
       <img class="icon" src="icons/trading.png"/>
     </span>
+    <tempus-menu
+      v-on:post-menu="postMenu"
+      v-on:add-building="addBuilding"
+      :config="menuConfig[menuOptions.currMenu]"
+      :options="menuOptions"/>
+    <!--<tempus-trade-menu :offers="offers"/>
+    <button @click="addBuilding(0)"> Toggle Farm </button>
+    <button @click="addBuilding(1)"> Toggle Factory </button> -->
     <svg class="tempus tempus-board" :viewBox="viewCoords">
       <path fill="none" stroke="blue" :d="svgOutline"> </path>
       <tempus-time x="1" y="1" size="50" @drag="doDrag"/>
+      <tempus-score :score="score"/>
       <tempus-building
       v-for="(building, index) in showingBuildings(buildings)"
       v-on:increment-percent="incrementPercent"
@@ -41,6 +46,7 @@ const Template = `
       v-for="(value, index) in values"
       v-on:increment-percent="incrementPercent"
       v-on:decrement-percent="decrementPercent"
+      v-on:update-score="updateScore"
       :key="value.title"
       :data="value"
       :config="valuesConfig"
@@ -58,6 +64,7 @@ import TempusBuilding from './building.vue'
 import TempusValue from './value.vue'
 import TempusTradeMenu from './tradeMenu.vue'
 import TempusTradeDialog from './tradeDialog.vue'
+import TempusScore from './score.vue'
 var BuildingStartPos = 70
 const Timer = require('./timer.js')
 
@@ -66,7 +73,8 @@ const Config = {
   template: Template,
   components: { 'tempus-time': TempusTime, 'tempus-menu': TempusMenu,
     'tempus-building': TempusBuilding, 'tempus-value': TempusValue,
-    'tempus-trade-menu': TempusTradeMenu, 'tempus-trade-dialog': TempusTradeDialog},
+    'tempus-trade-menu': TempusTradeMenu, 'tempus-trade-dialog': TempusTradeDialog,
+    'tempus-score': TempusScore,},
   data() { return {
     minX:	0,
     minY:	0,
@@ -77,23 +85,30 @@ const Config = {
     showFactory: false,
     timeUsers: [],
     timeUsersIterator: 0,
+    score: 0,
     buildings: [
       {id: 0, title: 'Farm', commodityTitle: 'Food', commodityAmount: 0, commodityMax: 50, rate: 0.1, position: BuildingStartPos, showBuilding: false, percent: 0,},
       {id: 1, title: 'Factory', commodityTitle: 'Materials', commodityAmount: 0, commodityMax: 40, rate: 0.1, position: BuildingStartPos, showBuilding: false, percent: 0,},
     ],
     //menu props
-    depth: 0,
-    config: [
-      {index:1, show: false, code: 'main', title: 'Menu', children:
-        [{name: 'Buildings', code: 'build'},{name: 'Settings', code: 'set'},{name: 'Scores', code: 'score'},]},
-      {index:2, show: false, code: 'build', title: 'Buildings', children: ['Farm', 'Factory',]}
+    menuConfig: [
+      {index: 0, code: 'main', title: 'Menu', prevMenu: null, subMenu:
+        [{name: 'Buildings', link: 1, method: 'post-menu',},
+        {name: 'Settings', link: 2, method: 'post-menu',},
+        {name: 'Scores', link: 3, method: 'post-menu',},]},
+      {index: 1, code: 'build', title: 'Buildings', prevMenu: null, subMenu:
+        [{name: 'Farm', link: 0, method: 'add-building',},
+        {name: 'Factory', link: 1, method: 'add-building',},]},
+      {index: 2, code: 'set', title: 'Settings', prevMenu: null, subMenu: [],},
+      {index: 3, code: 'score', title: 'Scores', prevMenu: null, subMenu: [],},
     ],
+    menuOptions: {width: 0, prevMenu: null, currMenu: 0,},
     values: [
-      {id:100, title: 'Idleness', timer: null, arrows: true, percent: 100,},
-      {id:101, title: 'Health', timer: 100, arrows: true, percent: 0,},
-      {id:102, title: 'Comfort', timer: null, arrows: true, percent: 0,},
-      {id:103, title: 'Experiences', timer: null, arrows: true, percent: 0,},
-      {id:104, title: 'Wealth', timer: null, arrows: false, percent: 0,},
+      {id:100, title: 'Idleness', timer: null, arrows: true, percent: 100, mltplr: 0.5, scale: 0,},
+      {id:101, title: 'Health', timer: 100, arrows: true, percent: 0, mltplr: 1, scale: 0.5,},
+      {id:102, title: 'Comfort', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2,},
+      {id:103, title: 'Experiences', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2,},
+      {id:104, title: 'Wealth', timer: null, arrows: false, percent: 0, mltplr: 1, scale: 0,},
     ],
     valuesConfig: {x: 15, y: 205, ry: 1.8, width: 45, height: 30,},
     val: {x: 10, y: 200, ry: 1.8, width: 255, height: 40,},
@@ -123,14 +138,35 @@ const Config = {
       console.log("Dragging:", e)
       //Insert code here to move item x,y location
     },
-    subMenu(code) {
-      for(var i = 0; i < config.length; i++) {
-        if (code === config[i].code) {
-          config[i].show = !config[i].show
+    updateScore(newPoints) {
+      this.score += newPoints
+      //console.log('Score: ', this.score)
+    },
+    postMenu(index, current) {
+      console.log('postMenu: {index: ' + index + ', current: ' + current + '}')
+      if(index != null) {   //go to a link
+        this.menuOptions.currMenu = index
+        this.menuConfig[index].prevMenu = current
+      }
+      else {
+        if (this.menuOptions.width == 0) {  //open menu
+          this.menuOptions.currMenu = 0
+          this.menuConfig[0].prevMenu = null
+          this.menuOptions.width = 250
+        }
+        else if (current == 0) {  //close menu
+          this.menuOptions.width = 0
+          this.menuOptions.currMenu = 0
+          this.menuConfig[0].prevMenu = null
+        }
+        else {  //go back a page
+          this.menuOptions.currMenu = this.menuConfig[current].prevMenu
+          this.menuConfig[current].prevMenu = null
         }
       }
+      console.log('width: ', this.menuOptions.width)
     },
-    addBuilding(index) {
+    addBuilding(index, notUsing) {  //notUsing only neccesary for compatibility with menu.vue
       this.buildings[index].percent = 0
       //console.log(this.buildings[index].showBuilding)
       if (this.timeUsers.indexOf(this.buildings[index]) == -1) {
