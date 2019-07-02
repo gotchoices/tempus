@@ -55,6 +55,7 @@ const Template = `
 
     </svg>
     <tempus-trade-dialog :config="tradeDialogConfig" v-on:toggle-trade-dialog="toggleTradeDialog"/>
+    <h1 class="gameOver" v-if="endText.show"> {{endText.text}} </h1>
   </div>
 `
 
@@ -86,6 +87,7 @@ const Config = {
     timeUsers: [],
     timeUsersIterator: 0,
     score: 0,
+    timeCounter: 0,
     buildings: [
       {id: 0, title: 'Farm', commodityTitle: 'Food', commodityAmount: 0, commodityMax: 50, rate: 0.1, position: BuildingStartPos, showBuilding: false, percent: 0,},
       {id: 1, title: 'Factory', commodityTitle: 'Materials', commodityAmount: 0, commodityMax: 40, rate: 0.1, position: BuildingStartPos, showBuilding: false, percent: 0,},
@@ -115,7 +117,8 @@ const Config = {
     offers: [
       {id:0, title: "JonahB", content: "50 Food"},
     ],
-    tradeDialogConfig: {width: 0, showing: false,}
+    tradeDialogConfig: {width: 0, showing: false,},
+    endText: {text: 'Game Over', show: false},
   }},
   computed: {
     width: function() {return this.maxX - this.minX},
@@ -276,6 +279,9 @@ const Config = {
       this.tradeDialogConfig.showing = !this.tradeDialogConfig.showing
       //console.log("width: ", this.tradeDialogConfig.width)
     },
+    gameOver: function() {
+      this.endText.show = true
+    },
   },
   watch: {
     x: function(val) {
@@ -293,6 +299,16 @@ const Config = {
           this.timeUsers.push(this.values[i])
         }
       }
+      this.startTimer()
+      Timer.register('root', ()=>{
+        if (this.timeCounter%50 === 0) { //twice every second
+          if (this.timeCounter >= 30000) { //30000 = five minutes
+            this.stopTimer()
+            this.gameOver()
+          }
+        }
+        this.timeCounter++
+      })
     })
   },
 }

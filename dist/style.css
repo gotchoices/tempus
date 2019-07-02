@@ -164,3 +164,11 @@ input {
   width: 100%;
   box-sizing: border-box;
 }
+
+.gameOver {
+  position: fixed;
+  font-size: 100px;
+  top: 100px;
+  left: 100px;
+  z-index: 1000;
+}
