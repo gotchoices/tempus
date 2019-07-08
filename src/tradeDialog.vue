@@ -16,8 +16,8 @@
       <input type="text" id="offering" name="offering">
       <label for="payment"> Preferred Payment </label>
       <input type="text" id="payment" name="payment">
-      <input type="submit">
     </form>
+    <button> Post Offer </button>
   </div>
 </div>
 </template>

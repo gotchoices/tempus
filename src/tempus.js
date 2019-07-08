@@ -13,6 +13,7 @@ const Template = `
     </span>
     <button @click="startTimer"> Start Timer </button>
     <button @click="stopTimer"> Stop Timer </button>
+    <button @click="sendPacket"> Send Packet </button>
     <span class="open" id="tradeButton">
       <img class="icon" src="icons/trading.png"/>
     </span>
@@ -21,7 +22,7 @@ const Template = `
       v-on:add-building="addBuilding"
       :config="menuConfig[menuOptions.currMenu]"
       :options="menuOptions"/>
-    <!--<tempus-trade-menu :offers="offers"/>
+    <!-- <tempus-market :offers="offers"/>
     <button @click="addBuilding(0)"> Toggle Farm </button>
     <button @click="addBuilding(1)"> Toggle Factory </button> -->
     <svg class="tempus tempus-board" :viewBox="viewCoords">
@@ -54,7 +55,11 @@ const Template = `
       />
 
     </svg>
-    <tempus-trade-dialog :config="tradeDialogConfig" v-on:toggle-trade-dialog="toggleTradeDialog"/>
+    <tempus-trade-dialog
+      :config="tradeDialogConfig"
+      v-on:toggle-trade-dialog="toggleTradeDialog"
+      v-on:post-offer="sendPacket"
+      />
     <h1 class="gameOver" v-if="endText.show"> {{endText.text}} </h1>
   </div>
 `
@@ -63,7 +68,7 @@ import TempusTime from './time.vue'
 import TempusMenu from './menu.vue'
 import TempusBuilding from './building.vue'
 import TempusValue from './value.vue'
-import TempusTradeMenu from './tradeMenu.vue'
+import TempusMarket from './market.vue'
 import TempusTradeDialog from './tradeDialog.vue'
 import TempusScore from './score.vue'
 var BuildingStartPos = 70
@@ -74,7 +79,7 @@ const Config = {
   template: Template,
   components: { 'tempus-time': TempusTime, 'tempus-menu': TempusMenu,
     'tempus-building': TempusBuilding, 'tempus-value': TempusValue,
-    'tempus-trade-menu': TempusTradeMenu, 'tempus-trade-dialog': TempusTradeDialog,
+    'tempus-market': TempusMarket, 'tempus-trade-dialog': TempusTradeDialog,
     'tempus-score': TempusScore,},
   data() { return {
     minX:	0,
@@ -119,6 +124,7 @@ const Config = {
     ],
     tradeDialogConfig: {width: 0, showing: false,},
     endText: {text: 'Game Over', show: false},
+    wsHandler: null,
   }},
   computed: {
     width: function() {return this.maxX - this.minX},
@@ -282,6 +288,10 @@ const Config = {
     gameOver: function() {
       this.endText.show = true
     },
+    sendPacket: function(packet) {
+      console.log("Send Packet", this.wsHandler)
+      this.wsHandler.send(JSON.stringify(packet))
+    },
   },
   watch: {
     x: function(val) {
@@ -310,6 +320,25 @@ const Config = {
         this.timeCounter++
       })
     })
+
+    let address = window.location.hostname
+      , url = "ws://" + address + ":4001"
+    this.wsHandler = new WebSocket(url)
+    console.log("Location: ", window.location.hostname, url)
+    this.wsHandler.addEventListener('error', event => {
+      console.log("Error connecting")
+    })
+    this.wsHandler.addEventListener('close', event => {
+      console.log("Closed Socket")
+    })
+    this.wsHandler.addEventListener('open', event => {
+      console.log("Opened Socket")
+      this.wsHandler.addEventListener('message', evt => {
+        let pkt = JSON.parse(evt.data)
+        console.log("Got Message", pkt)
+      })
+    })
+
   },
 }
 

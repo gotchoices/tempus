@@ -1,0 +1,16 @@
+Client:
+  Hold arrow keys
+  Click outside of menu to close
+  Populate Market
+
+Back end:
+  Protocal - JSON, client driven
+  	client registers with the server, defines call-backs
+  Logging
+  Database
+
+JSON protocal
+  Score
+    {type: 'score', id: uniqueId, user: userId, score: totalScore}
+  Offer
+    {type: offer, id: uniqueId, user: userId, item: itemToTrade, quantity: amountOffered, callback: function}
