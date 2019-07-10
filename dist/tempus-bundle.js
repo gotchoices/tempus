@@ -11892,7 +11892,9 @@ var render = function() {
         _vm._v(" "),
         _c("h2", [_vm._v(" Trade Dialog ")]),
         _vm._v(" "),
-        _vm._m(0)
+        _vm._m(0),
+        _vm._v(" "),
+        _c("button", [_vm._v(" Post Offer ")])
       ]
     )
   ])
@@ -11913,9 +11915,7 @@ var staticRenderFns = [
         _vm._v(" Preferred Payment ")
       ]),
       _vm._v(" "),
-      _c("input", { attrs: { type: "text", id: "payment", name: "payment" } }),
-      _vm._v(" "),
-      _c("input", { attrs: { type: "submit" } })
+      _c("input", { attrs: { type: "text", id: "payment", name: "payment" } })
     ])
   }
 ]
@@ -24356,6 +24356,34 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./src/packetRegister.js":
+/*!*******************************!*\
+  !*** ./src/packetRegister.js ***!
+  \*******************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+//registers packages sent to the server
+
+var packets = {};
+
+module.exports = {
+
+  register: function (packet) {
+    packets[packet.id] = packet;
+  },
+  recieved: function (packet) {
+    if (packet.id in packets) {
+      //call callback and delete packet
+      packets[packet.id].cb();
+      delete packets[packet.id];
+      console.log("Packet recieved, status: ", packet.status);
+    }
+  }
+};
+
+/***/ }),
+
 /***/ "./src/score.vue":
 /*!***********************!*\
   !*** ./src/score.vue ***!
@@ -24453,6 +24481,12 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.config.productionTip = false;
 
 const Template = `
   <div class="tempus">
+    <div class="register" v-if="showRegisterDialog">
+      <p>Register Your Username</p>
+      <input v-model="user" placeholder="Your username"></input>
+      <button @click="registerUsername(user)"> Register </button>
+      <p>{{registerMessage}}</p>
+    </div>
     <span class="open" @click="postMenu(null, null)">
       <img class="icon" :src="menuIcon" />
     </span>
@@ -24500,7 +24534,12 @@ const Template = `
       />
 
     </svg>
-    <tempus-trade-dialog :config="tradeDialogConfig" v-on:toggle-trade-dialog="toggleTradeDialog"/>
+    <tempus-trade-dialog
+      :config="tradeDialogConfig"
+      v-on:toggle-trade-dialog="toggleTradeDialog"
+      v-on:post-offer="sendPacket"
+      />
+
     <h1 class="gameOver" v-if="endText.show"> {{endText.text}} </h1>
   </div>
 `;
@@ -24514,6 +24553,7 @@ const Template = `
 
 var BuildingStartPos = 70;
 const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
+const PacketRegister = __webpack_require__(/*! ./packetRegister.js */ "./src/packetRegister.js");
 
 const Config = {
   el: '#app',
@@ -24535,11 +24575,15 @@ const Config = {
       timeUsersIterator: 0,
       score: 0,
       timeCounter: 0,
+      user: "",
+      registerMessage: "",
+      showRegisterDialog: true,
+      uniqueId: 0,
       buildings: [{ id: 0, title: 'Farm', commodityTitle: 'Food', commodityAmount: 0, commodityMax: 50, rate: 0.1, position: BuildingStartPos, showBuilding: false, percent: 0 }, { id: 1, title: 'Factory', commodityTitle: 'Materials', commodityAmount: 0, commodityMax: 40, rate: 0.1, position: BuildingStartPos, showBuilding: false, percent: 0 }],
       //menu props
       menuConfig: [{ index: 0, code: 'main', title: 'Menu', prevMenu: null, subMenu: [{ name: 'Buildings', link: 1, method: 'post-menu' }, { name: 'Settings', link: 2, method: 'post-menu' }, { name: 'Scores', link: 3, method: 'post-menu' }] }, { index: 1, code: 'build', title: 'Buildings', prevMenu: null, subMenu: [{ name: 'Farm', link: 0, method: 'add-building' }, { name: 'Factory', link: 1, method: 'add-building' }] }, { index: 2, code: 'set', title: 'Settings', prevMenu: null, subMenu: [] }, { index: 3, code: 'score', title: 'Scores', prevMenu: null, subMenu: [] }],
       menuOptions: { width: 0, prevMenu: null, currMenu: 0 },
-      values: [{ id: 100, title: 'Idleness', timer: null, arrows: true, percent: 100, mltplr: 0.5, scale: 0 }, { id: 101, title: 'Health', timer: 100, arrows: true, percent: 0, mltplr: 1, scale: 0.5 }, { id: 102, title: 'Comfort', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2 }, { id: 103, title: 'Experiences', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2 }, { id: 104, title: 'Wealth', timer: null, arrows: false, percent: 0, mltplr: 1, scale: 0 }],
+      values: [{ id: 100, title: 'Idleffness', timer: null, arrows: true, percent: 100, mltplr: 0.5, scale: 0 }, { id: 101, title: 'Health', timer: 100, arrows: true, percent: 0, mltplr: 1, scale: 0.5 }, { id: 102, title: 'Comfort', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2 }, { id: 103, title: 'Experiences', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2 }, { id: 104, title: 'Wealth', timer: null, arrows: false, percent: 0, mltplr: 1, scale: 0 }],
       valuesConfig: { x: 15, y: 205, ry: 1.8, width: 45, height: 30 },
       val: { x: 10, y: 200, ry: 1.8, width: 255, height: 40 },
       offers: [{ id: 0, title: "JonahB", content: "50 Food" }],
@@ -24721,9 +24765,26 @@ const Config = {
     gameOver: function () {
       this.endText.show = true;
     },
-    sendPacket: function () {
+    sendPacket: function (packet) {
       console.log("Send Packet", this.wsHandler);
-      this.wsHandler.send(JSON.stringify({ msg: "Sending" }));
+      PacketRegister.register(packet);
+      this.wsHandler.send(JSON.stringify(packet));
+    },
+    registerUsername: function (user) {
+      if (user == "") {
+        alert("Invalid Username");
+      } else {
+        this.sendPacket({
+          type: 'register',
+          id: this.uniqueId++,
+          user: user,
+          cb: () => {
+            this.registerMessage = this.user + ' Registered';
+            this.showRegisterDialog = false;
+            this.startTimer();
+          }
+        });
+      }
     }
   },
   watch: {
@@ -24741,7 +24802,7 @@ const Config = {
           this.timeUsers.push(this.values[i]);
         }
       }
-      this.startTimer();
+
       Timer.register('root', () => {
         if (this.timeCounter % 50 === 0) {
           //twice every second
@@ -24770,6 +24831,7 @@ const Config = {
       this.wsHandler.addEventListener('message', evt => {
         let pkt = JSON.parse(evt.data);
         console.log("Got Message", pkt);
+        PacketRegister.recieved(pkt);
       });
     });
   }

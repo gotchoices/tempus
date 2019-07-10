@@ -172,3 +172,13 @@ input {
   left: 100px;
   z-index: 1000;
 }
+
+.register {
+  position: fixed;
+  top: 100px;
+  left: 300px;
+  z-index: 1000;
+  width: 400px;
+  height: 200px;
+  background-color: gray;
+}

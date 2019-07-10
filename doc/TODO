@@ -14,3 +14,5 @@ JSON protocal
     {type: 'score', id: uniqueId, user: userId, score: totalScore}
   Offer
     {type: offer, id: uniqueId, user: userId, item: itemToTrade, quantity: amountOffered, callback: function}
+  Register
+    {type: register, id: uniqueId, user: userId, cb: displays_"Registered"}

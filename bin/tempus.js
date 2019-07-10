@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+const PacketHandler = require('./packetHandler.js')
 const Express = require('express')
 const Http = require('http')
 
@@ -27,27 +28,10 @@ wsSocket.on('connection', (ws) => {
   ws.on('message', (msg) => {
     console.log("Incoming message: " + msg)
     let packet = JSON.parse(msg)
-    ws.send(JSON.stringify({msg: "OK"}))
+    PacketHandler.handle(packet, (returnPacket) => {
+      if (returnPacket) {
+        ws.send(JSON.stringify(returnPacket))
+      }
+    })
   })
 })
-
-//packet handlers
-handle: function(packet) {
-  switch (packet.type) {
-    case 'score':
-      handleScore(packet)
-      break;
-    case 'offer':
-      handleOffer(packet)
-      break;
-    case 'register':
-      handleRegister(packet)
-      break;
-    default:
-      console.log("Error with sent packet")
-  }
-}
-
-handleScore(packet) {
-  
-}

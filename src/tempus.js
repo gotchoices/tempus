@@ -8,6 +8,12 @@ Vue.config.productionTip = false
 
 const Template = `
   <div class="tempus">
+    <div class="register" v-if="showRegisterDialog">
+      <p>Register Your Username</p>
+      <input v-model="user" placeholder="Your username"></input>
+      <button @click="registerUsername(user)"> Register </button>
+      <p>{{registerMessage}}</p>
+    </div>
     <span class="open" @click="postMenu(null, null)">
       <img class="icon" :src="menuIcon" />
     </span>
@@ -60,6 +66,7 @@ const Template = `
       v-on:toggle-trade-dialog="toggleTradeDialog"
       v-on:post-offer="sendPacket"
       />
+
     <h1 class="gameOver" v-if="endText.show"> {{endText.text}} </h1>
   </div>
 `
@@ -73,6 +80,7 @@ import TempusTradeDialog from './tradeDialog.vue'
 import TempusScore from './score.vue'
 var BuildingStartPos = 70
 const Timer = require('./timer.js')
+const PacketRegister = require('./packetRegister.js')
 
 const Config = {
   el: '#app',
@@ -93,6 +101,10 @@ const Config = {
     timeUsersIterator: 0,
     score: 0,
     timeCounter: 0,
+    user: "",
+    registerMessage: "",
+    showRegisterDialog: true,
+    uniqueId: 0,
     buildings: [
       {id: 0, title: 'Farm', commodityTitle: 'Food', commodityAmount: 0, commodityMax: 50, rate: 0.1, position: BuildingStartPos, showBuilding: false, percent: 0,},
       {id: 1, title: 'Factory', commodityTitle: 'Materials', commodityAmount: 0, commodityMax: 40, rate: 0.1, position: BuildingStartPos, showBuilding: false, percent: 0,},
@@ -111,7 +123,7 @@ const Config = {
     ],
     menuOptions: {width: 0, prevMenu: null, currMenu: 0,},
     values: [
-      {id:100, title: 'Idleness', timer: null, arrows: true, percent: 100, mltplr: 0.5, scale: 0,},
+      {id:100, title: 'Idleffness', timer: null, arrows: true, percent: 100, mltplr: 0.5, scale: 0,},
       {id:101, title: 'Health', timer: 100, arrows: true, percent: 0, mltplr: 1, scale: 0.5,},
       {id:102, title: 'Comfort', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2,},
       {id:103, title: 'Experiences', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2,},
@@ -290,7 +302,25 @@ const Config = {
     },
     sendPacket: function(packet) {
       console.log("Send Packet", this.wsHandler)
+      PacketRegister.register(packet)
       this.wsHandler.send(JSON.stringify(packet))
+    },
+    registerUsername: function(user) {
+      if (user == "") {
+        alert("Invalid Username")
+      }
+      else {
+        this.sendPacket({
+          type: 'register',
+          id: this.uniqueId++,
+          user: user,
+          cb: () => {
+            this.registerMessage = this.user + ' Registered'
+            this.showRegisterDialog = false
+            this.startTimer()
+          }
+        })
+      }
     },
   },
   watch: {
@@ -309,7 +339,7 @@ const Config = {
           this.timeUsers.push(this.values[i])
         }
       }
-      this.startTimer()
+
       Timer.register('root', ()=>{
         if (this.timeCounter%50 === 0) { //twice every second
           if (this.timeCounter >= 30000) { //30000 = five minutes
@@ -336,6 +366,7 @@ const Config = {
       this.wsHandler.addEventListener('message', evt => {
         let pkt = JSON.parse(evt.data)
         console.log("Got Message", pkt)
+        PacketRegister.recieved(pkt)
       })
     })
 
