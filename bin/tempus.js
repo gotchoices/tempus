@@ -30,6 +30,7 @@ wsSocket.on('connection', (ws) => {
     let packet = JSON.parse(msg)
     PacketHandler.handle(packet, (returnPacket) => {
       if (returnPacket) {
+        //console.log("returnPacket: " + JSON.stringify(returnPacket))
         ws.send(JSON.stringify(returnPacket))
       }
     })

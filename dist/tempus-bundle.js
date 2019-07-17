@@ -329,7 +329,7 @@ const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'tempus-score',
-  props: ['score'],
+  props: ['score', 'user'],
   data() {
     return {
       timeCounter: 0,
@@ -503,18 +503,65 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'tempus-trade-dialog',
-  props: ['config'],
+  props: ['config', 'buildings'],
   data() {
     return {
-      backIcon: 'icons/close.png'
+      backIcon: 'icons/close.png',
+      capital: null,
+      commodity: null,
+      amount: null,
+      showAmount: false
     };
   },
   computed: {},
-  methods: {}
+  methods: {
+    postOffer: function () {
+      //console.log("type: ", typeof this.amount)
+      if (this.capital === null && this.commodity === null) {
+        this.config.message = 'Empty Selection, please select what you would like to trade';
+      } else if (this.capital != null && this.commodity != null) {
+        this.config.message = 'Please only select one thing to trade';
+      } else if (this.commodity != null && this.amount === null) {
+        this.config.message = 'Please enter an amount';
+      } else if (this.commodity != null && typeof this.amount === 'string') {
+        this.config.message = 'Invalid amount, please input a number';
+        //console.log("Invalid type")
+      } else if (this.capital != null && this.amount != null) {
+        this.amount = null;
+      } else {
+        this.$emit('post-offer', this.selected, this.amount);
+      }
+    },
+    clear: function () {
+      this.commodity = null;
+      this.capital = null;
+      this.amount = null;
+      this.config.message = "";
+    },
+    closeDialog: function () {
+      //console.log("closeDialog")
+      this.clear();
+      this.$emit('toggle-trade-dialog');
+    }
+  }
 });
 
 /***/ }),
@@ -11708,7 +11755,9 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c("g", { staticClass: "score" }, [
     _c("text", { attrs: { x: "60", y: "15", "font-size": "10" } }, [
-      _vm._v(" Score: " + _vm._s(this.roundScore) + " ")
+      _vm._v(
+        " " + _vm._s(_vm.user) + "'s score: " + _vm._s(this.roundScore) + " "
+      )
     ])
   ])
 }
@@ -11882,43 +11931,143 @@ var render = function() {
           _c("img", {
             staticClass: "icon closebtn",
             attrs: { src: _vm.backIcon },
-            on: {
-              click: function($event) {
-                return _vm.$emit("toggle-trade-dialog")
-              }
-            }
+            on: { click: _vm.closeDialog }
           })
         ]),
         _vm._v(" "),
         _c("h2", [_vm._v(" Trade Dialog ")]),
         _vm._v(" "),
-        _vm._m(0),
+        _c(
+          "select",
+          {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.capital,
+                expression: "capital"
+              }
+            ],
+            on: {
+              change: function($event) {
+                var $$selectedVal = Array.prototype.filter
+                  .call($event.target.options, function(o) {
+                    return o.selected
+                  })
+                  .map(function(o) {
+                    var val = "_value" in o ? o._value : o.value
+                    return val
+                  })
+                _vm.capital = $event.target.multiple
+                  ? $$selectedVal
+                  : $$selectedVal[0]
+              }
+            }
+          },
+          [
+            _c("option", { attrs: { disabled: "", value: "null" } }, [
+              _vm._v(" Capital ")
+            ]),
+            _vm._v(" "),
+            _vm._l(_vm.buildings, function(building) {
+              return _c("option", { domProps: { value: building.title } }, [
+                _vm._v("\n        " + _vm._s(building.title) + "\n      ")
+              ])
+            })
+          ],
+          2
+        ),
         _vm._v(" "),
-        _c("button", [_vm._v(" Post Offer ")])
+        _c("br"),
+        _vm._v(" "),
+        _c(
+          "select",
+          {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.commodity,
+                expression: "commodity"
+              }
+            ],
+            on: {
+              change: function($event) {
+                var $$selectedVal = Array.prototype.filter
+                  .call($event.target.options, function(o) {
+                    return o.selected
+                  })
+                  .map(function(o) {
+                    var val = "_value" in o ? o._value : o.value
+                    return val
+                  })
+                _vm.commodity = $event.target.multiple
+                  ? $$selectedVal
+                  : $$selectedVal[0]
+              }
+            }
+          },
+          [
+            _c("option", { attrs: { disabled: "", value: "null" } }, [
+              _vm._v(" Commodities ")
+            ]),
+            _vm._v(" "),
+            _vm._l(_vm.buildings, function(building) {
+              return _c(
+                "option",
+                { domProps: { value: building.commodityTitle } },
+                [
+                  _vm._v(
+                    "\n        " + _vm._s(building.commodityTitle) + "\n      "
+                  )
+                ]
+              )
+            })
+          ],
+          2
+        ),
+        _vm._v(" "),
+        _vm.commodity
+          ? _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model.number",
+                  value: _vm.amount,
+                  expression: "amount",
+                  modifiers: { number: true }
+                }
+              ],
+              attrs: { placeholder: "Amount to trade" },
+              domProps: { value: _vm.amount },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.amount = _vm._n($event.target.value)
+                },
+                blur: function($event) {
+                  return _vm.$forceUpdate()
+                }
+              }
+            })
+          : _vm._e(),
+        _vm._v(" "),
+        _c("br"),
+        _vm._v(" "),
+        _c("button", { on: { click: _vm.postOffer } }, [
+          _vm._v(" Post Offer ")
+        ]),
+        _vm._v(" "),
+        _c("button", { on: { click: _vm.clear } }, [_vm._v(" Clear ")]),
+        _vm._v(" "),
+        _c("p", [_vm._v(" " + _vm._s(_vm.config.message) + " ")])
       ]
     )
   ])
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("form", [
-      _c("label", { attrs: { for: "offering" } }, [_vm._v(" Your offer: ")]),
-      _vm._v(" "),
-      _c("input", {
-        attrs: { type: "text", id: "offering", name: "offering" }
-      }),
-      _vm._v(" "),
-      _c("label", { attrs: { for: "payment" } }, [
-        _vm._v(" Preferred Payment ")
-      ]),
-      _vm._v(" "),
-      _c("input", { attrs: { type: "text", id: "payment", name: "payment" } })
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -24372,12 +24521,12 @@ module.exports = {
   register: function (packet) {
     packets[packet.id] = packet;
   },
-  recieved: function (packet) {
-    if (packet.id in packets) {
+  recieved: function (returnPacket) {
+    if (returnPacket.id in packets) {
       //call callback and delete packet
-      packets[packet.id].cb();
-      delete packets[packet.id];
-      console.log("Packet recieved, status: ", packet.status);
+      packets[returnPacket.id].cb(returnPacket);
+      delete packets[returnPacket.id];
+      console.log("Packet recieved, status: ", returnPacket.status);
     }
   }
 };
@@ -24499,6 +24648,7 @@ const Template = `
     <tempus-menu
       v-on:post-menu="postMenu"
       v-on:add-building="addBuilding"
+      v-on:fetch-scores="fetchScores"
       :config="menuConfig[menuOptions.currMenu]"
       :options="menuOptions"/>
     <!-- <tempus-market :offers="offers"/>
@@ -24507,7 +24657,7 @@ const Template = `
     <svg class="tempus tempus-board" :viewBox="viewCoords">
       <path fill="none" stroke="blue" :d="svgOutline"> </path>
       <tempus-time x="1" y="1" size="50" @drag="doDrag"/>
-      <tempus-score :score="score"/>
+      <tempus-score v-if="!showRegisterDialog":score="score" :user="user"/>
       <tempus-building
       v-for="(building, index) in showingBuildings(buildings)"
       v-on:increment-percent="incrementPercent"
@@ -24536,8 +24686,9 @@ const Template = `
     </svg>
     <tempus-trade-dialog
       :config="tradeDialogConfig"
+      :buildings="buildings"
       v-on:toggle-trade-dialog="toggleTradeDialog"
-      v-on:post-offer="sendPacket"
+      v-on:post-offer="postOffer"
       />
 
     <h1 class="gameOver" v-if="endText.show"> {{endText.text}} </h1>
@@ -24579,15 +24730,17 @@ const Config = {
       registerMessage: "",
       showRegisterDialog: true,
       uniqueId: 0,
-      buildings: [{ id: 0, title: 'Farm', commodityTitle: 'Food', commodityAmount: 0, commodityMax: 50, rate: 0.1, position: BuildingStartPos, showBuilding: false, percent: 0 }, { id: 1, title: 'Factory', commodityTitle: 'Materials', commodityAmount: 0, commodityMax: 40, rate: 0.1, position: BuildingStartPos, showBuilding: false, percent: 0 }],
+      buildings: [{ id: 0, title: 'Farm', commodityTitle: 'Food', commodityAmount: 0, commodityMax: 50,
+        rate: 0.1, position: BuildingStartPos, showBuilding: true, percent: 0 }, { id: 1, title: 'Factory', commodityTitle: 'Materials', commodityAmount: 0, commodityMax: 40,
+        rate: 0.1, position: BuildingStartPos, showBuilding: false, percent: 0 }],
       //menu props
-      menuConfig: [{ index: 0, code: 'main', title: 'Menu', prevMenu: null, subMenu: [{ name: 'Buildings', link: 1, method: 'post-menu' }, { name: 'Settings', link: 2, method: 'post-menu' }, { name: 'Scores', link: 3, method: 'post-menu' }] }, { index: 1, code: 'build', title: 'Buildings', prevMenu: null, subMenu: [{ name: 'Farm', link: 0, method: 'add-building' }, { name: 'Factory', link: 1, method: 'add-building' }] }, { index: 2, code: 'set', title: 'Settings', prevMenu: null, subMenu: [] }, { index: 3, code: 'score', title: 'Scores', prevMenu: null, subMenu: [] }],
+      menuConfig: [{ index: 0, code: 'main', title: 'Menu', prevMenu: null, subMenu: [{ name: 'Buildings', link: 1, method: 'post-menu' }, { name: 'Settings', link: 2, method: 'post-menu' }, { name: 'Scores', link: 3, method: 'post-menu' }] }, { index: 1, code: 'build', title: 'Buildings', prevMenu: null, subMenu: [{ name: 'Farm', link: 0, method: 'add-building' }, { name: 'Factory', link: 1, method: 'add-building' }] }, { index: 2, code: 'set', title: 'Settings', prevMenu: null, subMenu: [] }, { index: 3, code: 'score', title: 'Scores', prevMenu: null, subMenu: [{ name: 'Update Scores', link: null, method: 'fetch-scores' }] }],
       menuOptions: { width: 0, prevMenu: null, currMenu: 0 },
-      values: [{ id: 100, title: 'Idleffness', timer: null, arrows: true, percent: 100, mltplr: 0.5, scale: 0 }, { id: 101, title: 'Health', timer: 100, arrows: true, percent: 0, mltplr: 1, scale: 0.5 }, { id: 102, title: 'Comfort', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2 }, { id: 103, title: 'Experiences', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2 }, { id: 104, title: 'Wealth', timer: null, arrows: false, percent: 0, mltplr: 1, scale: 0 }],
+      values: [{ id: 100, title: 'Idleness', timer: null, arrows: true, percent: 100, mltplr: 0.5, scale: 0 }, { id: 101, title: 'Health', timer: 100, arrows: true, percent: 0, mltplr: 1, scale: 0.5 }, { id: 102, title: 'Comfort', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2 }, { id: 103, title: 'Experiences', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2 }, { id: 104, title: 'Wealth', timer: null, arrows: false, percent: 0, mltplr: 1, scale: 0 }],
       valuesConfig: { x: 15, y: 205, ry: 1.8, width: 45, height: 30 },
       val: { x: 10, y: 200, ry: 1.8, width: 255, height: 40 },
       offers: [{ id: 0, title: "JonahB", content: "50 Food" }],
-      tradeDialogConfig: { width: 0, showing: false },
+      tradeDialogConfig: { width: 0, showing: false, message: "" },
       endText: { text: 'Game Over', show: false },
       wsHandler: null
     };
@@ -24626,12 +24779,12 @@ const Config = {
       console.log("Dragging:", e);
       //Insert code here to move item x,y location
     },
-    updateScore(newPoints) {
+    updateScore: function (newPoints) {
       this.score += newPoints;
       //console.log('Score: ', this.score)
     },
-    postMenu(index, current) {
-      console.log('postMenu: {index: ' + index + ', current: ' + current + '}');
+    postMenu: function (index, current) {
+      //console.log('postMenu: {index: ' + index + ', current: ' + current + '}')
       if (index != null) {
         //go to a link
         this.menuOptions.currMenu = index;
@@ -24653,9 +24806,9 @@ const Config = {
           this.menuConfig[current].prevMenu = null;
         }
       }
-      console.log('width: ', this.menuOptions.width);
+      //console.log('width: ', this.menuOptions.width)
     },
-    addBuilding(index, notUsing) {
+    addBuilding: function (index, notUsing) {
       //notUsing only neccesary for compatibility with menu.vue
       this.buildings[index].percent = 0;
       //console.log(this.buildings[index].showBuilding)
@@ -24754,6 +24907,7 @@ const Config = {
       Timer.stop();
     },
     toggleTradeDialog: function () {
+      this.tradeDialogConfig.message = "";
       if (this.tradeDialogConfig.showing == true) {
         this.tradeDialogConfig.width = 0;
       } else {
@@ -24778,13 +24932,41 @@ const Config = {
           type: 'register',
           id: this.uniqueId++,
           user: user,
-          cb: () => {
+          cb: returnPacket => {
             this.registerMessage = this.user + ' Registered';
             this.showRegisterDialog = false;
             this.startTimer();
           }
         });
       }
+    },
+    fetchScores: function (index, current) {
+      this.sendPacket({
+        type: 'scores',
+        id: this.uniqueId++,
+        user: this.user,
+        score: Math.floor(this.score),
+        cb: returnPacket => {
+          var i = 0;
+          for (i = 0; i < returnPacket.scores.length; i++) {
+            this.menuConfig[3].subMenu.splice(1); //changes the length
+            this.$set(this.menuConfig[3].subMenu, i + 1, returnPacket.scores[i]);
+          }
+        }
+      });
+    },
+    postOffer: function (toTrade, amount) {
+      this.sendPacket({
+        type: 'offer',
+        id: this.uniqueId++,
+        user: this.user,
+        offer: toTrade,
+        amount: amount,
+        cb: returnPacket => {
+          console.log("New message: ", returnPacket.message);
+          this.tradeDialogConfig.message = returnPacket.message;
+        }
+      });
     }
   },
   watch: {

@@ -7,12 +7,12 @@ module.exports={
   register: function(packet) {
     packets[packet.id] = packet
   },
-  recieved: function(packet) {
-    if (packet.id in packets) {
+  recieved: function(returnPacket) {
+    if (returnPacket.id in packets) {
       //call callback and delete packet
-      packets[packet.id].cb()
-      delete packets[packet.id]
-      console.log("Packet recieved, status: ", packet.status)
+      packets[returnPacket.id].cb(returnPacket)
+      delete packets[returnPacket.id]
+      console.log("Packet recieved, status: ", returnPacket.status)
     }
   }
 }

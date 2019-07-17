@@ -6,6 +6,9 @@ Client:
 Back end:
   Protocal - JSON, client driven
   	client registers with the server, defines call-backs
+      Fix score list
+      Post offers
+      Offer list
   Logging
   Database
 

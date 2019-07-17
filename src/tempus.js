@@ -26,6 +26,7 @@ const Template = `
     <tempus-menu
       v-on:post-menu="postMenu"
       v-on:add-building="addBuilding"
+      v-on:fetch-scores="fetchScores"
       :config="menuConfig[menuOptions.currMenu]"
       :options="menuOptions"/>
     <!-- <tempus-market :offers="offers"/>
@@ -34,7 +35,7 @@ const Template = `
     <svg class="tempus tempus-board" :viewBox="viewCoords">
       <path fill="none" stroke="blue" :d="svgOutline"> </path>
       <tempus-time x="1" y="1" size="50" @drag="doDrag"/>
-      <tempus-score :score="score"/>
+      <tempus-score v-if="!showRegisterDialog":score="score" :user="user"/>
       <tempus-building
       v-for="(building, index) in showingBuildings(buildings)"
       v-on:increment-percent="incrementPercent"
@@ -63,8 +64,9 @@ const Template = `
     </svg>
     <tempus-trade-dialog
       :config="tradeDialogConfig"
+      :buildings="buildings"
       v-on:toggle-trade-dialog="toggleTradeDialog"
-      v-on:post-offer="sendPacket"
+      v-on:post-offer="postOffer"
       />
 
     <h1 class="gameOver" v-if="endText.show"> {{endText.text}} </h1>
@@ -106,8 +108,10 @@ const Config = {
     showRegisterDialog: true,
     uniqueId: 0,
     buildings: [
-      {id: 0, title: 'Farm', commodityTitle: 'Food', commodityAmount: 0, commodityMax: 50, rate: 0.1, position: BuildingStartPos, showBuilding: false, percent: 0,},
-      {id: 1, title: 'Factory', commodityTitle: 'Materials', commodityAmount: 0, commodityMax: 40, rate: 0.1, position: BuildingStartPos, showBuilding: false, percent: 0,},
+      {id: 0, title: 'Farm', commodityTitle: 'Food', commodityAmount: 0, commodityMax: 50,
+        rate: 0.1, position: BuildingStartPos, showBuilding: true, percent: 0,},
+      {id: 1, title: 'Factory', commodityTitle: 'Materials', commodityAmount: 0, commodityMax: 40,
+        rate: 0.1, position: BuildingStartPos, showBuilding: false, percent: 0,},
     ],
     //menu props
     menuConfig: [
@@ -119,11 +123,12 @@ const Config = {
         [{name: 'Farm', link: 0, method: 'add-building',},
         {name: 'Factory', link: 1, method: 'add-building',},]},
       {index: 2, code: 'set', title: 'Settings', prevMenu: null, subMenu: [],},
-      {index: 3, code: 'score', title: 'Scores', prevMenu: null, subMenu: [],},
+      {index: 3, code: 'score', title: 'Scores', prevMenu: null, subMenu:
+        [{name: 'Update Scores', link: null, method: 'fetch-scores',}],},
     ],
     menuOptions: {width: 0, prevMenu: null, currMenu: 0,},
     values: [
-      {id:100, title: 'Idleffness', timer: null, arrows: true, percent: 100, mltplr: 0.5, scale: 0,},
+      {id:100, title: 'Idleness', timer: null, arrows: true, percent: 100, mltplr: 0.5, scale: 0,},
       {id:101, title: 'Health', timer: 100, arrows: true, percent: 0, mltplr: 1, scale: 0.5,},
       {id:102, title: 'Comfort', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2,},
       {id:103, title: 'Experiences', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2,},
@@ -134,7 +139,7 @@ const Config = {
     offers: [
       {id:0, title: "JonahB", content: "50 Food"},
     ],
-    tradeDialogConfig: {width: 0, showing: false,},
+    tradeDialogConfig: {width: 0, showing: false, message: "",},
     endText: {text: 'Game Over', show: false},
     wsHandler: null,
   }},
@@ -159,12 +164,12 @@ const Config = {
       console.log("Dragging:", e)
       //Insert code here to move item x,y location
     },
-    updateScore(newPoints) {
+    updateScore: function(newPoints) {
       this.score += newPoints
       //console.log('Score: ', this.score)
     },
-    postMenu(index, current) {
-      console.log('postMenu: {index: ' + index + ', current: ' + current + '}')
+    postMenu: function(index, current) {
+      //console.log('postMenu: {index: ' + index + ', current: ' + current + '}')
       if(index != null) {   //go to a link
         this.menuOptions.currMenu = index
         this.menuConfig[index].prevMenu = current
@@ -185,9 +190,9 @@ const Config = {
           this.menuConfig[current].prevMenu = null
         }
       }
-      console.log('width: ', this.menuOptions.width)
+      //console.log('width: ', this.menuOptions.width)
     },
-    addBuilding(index, notUsing) {  //notUsing only neccesary for compatibility with menu.vue
+    addBuilding: function(index, notUsing) {  //notUsing only neccesary for compatibility with menu.vue
       this.buildings[index].percent = 0
       //console.log(this.buildings[index].showBuilding)
       if (this.timeUsers.indexOf(this.buildings[index]) == -1) {
@@ -288,6 +293,7 @@ const Config = {
       Timer.stop()
     },
     toggleTradeDialog: function() {
+      this.tradeDialogConfig.message = ""
       if (this.tradeDialogConfig.showing == true) {
         this.tradeDialogConfig.width = 0
       }
@@ -314,13 +320,41 @@ const Config = {
           type: 'register',
           id: this.uniqueId++,
           user: user,
-          cb: () => {
+          cb: (returnPacket) => {
             this.registerMessage = this.user + ' Registered'
             this.showRegisterDialog = false
             this.startTimer()
-          }
+          },
         })
       }
+    },
+    fetchScores: function(index, current) {
+      this.sendPacket({
+        type: 'scores',
+        id: this.uniqueId++,
+        user: this.user,
+        score: Math.floor(this.score),
+        cb: (returnPacket) => {
+          var i = 0
+          for (i = 0; i < returnPacket.scores.length; i++) {
+            this.menuConfig[3].subMenu.splice(1) //changes the length
+            this.$set(this.menuConfig[3].subMenu, i + 1, returnPacket.scores[i])
+          }
+        },
+      })
+    },
+    postOffer: function(toTrade, amount) {
+      this.sendPacket({
+        type: 'offer',
+        id: this.uniqueId++,
+        user: this.user,
+        offer: toTrade,
+        amount: amount,
+        cb: (returnPacket) => {
+          console.log("New message: ", returnPacket.message)
+          this.tradeDialogConfig.message = returnPacket.message
+        },
+      })
     },
   },
   watch: {

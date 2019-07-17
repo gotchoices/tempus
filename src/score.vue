@@ -7,7 +7,7 @@
 <template>
 
   <g class="score">
-    <text x="60" y="15" font-size="10"> Score: {{this.roundScore}} </text>
+    <text x="60" y="15" font-size="10"> {{user}}'s score: {{this.roundScore}} </text>
   </g>
 
 </template>
@@ -19,7 +19,7 @@ const Timer = require('./timer.js')
 
 export default {
   name: 'tempus-score',
-  props: ['score'],
+  props: ['score', 'user'],
   data() { return {
     timeCounter: 0,
     displayScore: 0,
