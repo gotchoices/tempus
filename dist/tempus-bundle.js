@@ -129,6 +129,9 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
 
 
 const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
@@ -11761,146 +11764,127 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "g",
-    {
-      directives: [
-        {
-          name: "show",
-          rawName: "v-show",
-          value: _vm.build.owned,
-          expression: "build.owned"
+  return _c("g", { staticClass: "building" }, [
+    _c(
+      "text",
+      {
+        staticClass: "percentage",
+        attrs: { x: _vm.x + 1, y: _vm.y - 1, fill: "black", "font-size": "5px" }
+      },
+      [_vm._v(" " + _vm._s(_vm.build.percent) + "% ")]
+    ),
+    _vm._v(" "),
+    _c("rect", {
+      staticStyle: {
+        fill: "#94afd1",
+        "fill-opacity": "1",
+        "stroke-width": "0.26458332"
+      },
+      attrs: {
+        width: _vm.boxWidth,
+        height: _vm.boxHeight,
+        x: _vm.x,
+        y: _vm.y,
+        ry: "1.8"
+      }
+    }),
+    _vm._v(" "),
+    _c("path", {
+      staticClass: "percentArrow",
+      attrs: {
+        fill: "black",
+        stroke: "black",
+        "stroke-width:1": "",
+        d: _vm.upArrow
+      },
+      on: {
+        click: function($event) {
+          return _vm.$emit("increment-percent", _vm.build.index)
         }
-      ],
-      staticClass: "building"
-    },
-    [
-      _c(
-        "text",
-        {
-          staticClass: "percentage",
-          attrs: {
-            x: _vm.x + 1,
-            y: _vm.y - 1,
-            fill: "black",
-            "font-size": "5px"
-          }
-        },
-        [_vm._v(" " + _vm._s(_vm.build.percent) + "% ")]
-      ),
-      _vm._v(" "),
-      _c("rect", {
-        staticStyle: {
-          fill: "#94afd1",
-          "fill-opacity": "1",
-          "stroke-width": "0.26458332"
-        },
-        attrs: {
-          width: _vm.boxWidth,
-          height: _vm.boxHeight,
-          x: _vm.x,
-          y: _vm.y,
-          ry: "1.8"
+      }
+    }),
+    _vm._v(" "),
+    _c("path", {
+      staticClass: "percentArrow",
+      attrs: {
+        fill: "black",
+        stroke: "black",
+        "stroke-width:1": "",
+        d: _vm.downArrow
+      },
+      on: {
+        click: function($event) {
+          return _vm.$emit("decrement-percent", _vm.build.index)
         }
-      }),
-      _vm._v(" "),
-      _c("path", {
-        staticClass: "percentArrow",
+      }
+    }),
+    _vm._v(" "),
+    _c(
+      "text",
+      {
         attrs: {
+          x: _vm.x + 2,
+          y: _vm.y + 15,
           fill: "black",
-          stroke: "black",
-          "stroke-width:1": "",
-          d: _vm.upArrow
-        },
-        on: {
-          click: function($event) {
-            return _vm.$emit("increment-percent", _vm.build.index)
-          }
+          "font-size": "7px"
         }
-      }),
-      _vm._v(" "),
-      _c("path", {
-        staticClass: "percentArrow",
+      },
+      [_vm._v(" " + _vm._s(_vm.build.title) + " ")]
+    ),
+    _vm._v(" "),
+    _c("path", {
+      attrs: { fill: "none", stroke: "black", d: _vm.connectingLine }
+    }),
+    _vm._v(" "),
+    _c("rect", {
+      staticStyle: {
+        fill: "#94afd1",
+        "fill-opacity": "1",
+        "stroke-width": "0.26458332"
+      },
+      attrs: {
+        width: _vm.boxWidth,
+        height: _vm.boxHeight,
+        x: _vm.x,
+        y: _vm.y + 60,
+        ry: "1.7936023"
+      }
+    }),
+    _vm._v(" "),
+    _c(
+      "text",
+      {
         attrs: {
+          x: _vm.x + 2,
+          y: _vm.y + 70,
           fill: "black",
-          stroke: "black",
-          "stroke-width:1": "",
-          d: _vm.downArrow
-        },
-        on: {
-          click: function($event) {
-            return _vm.$emit("decrement-percent", _vm.build.index)
-          }
+          "font-size": "7px"
         }
-      }),
-      _vm._v(" "),
-      _c(
-        "text",
-        {
-          attrs: {
-            x: _vm.x + 2,
-            y: _vm.y + 15,
-            fill: "black",
-            "font-size": "7px"
-          }
-        },
-        [_vm._v(" " + _vm._s(_vm.build.title) + " ")]
-      ),
-      _vm._v(" "),
-      _c("path", {
-        attrs: { fill: "none", stroke: "black", d: _vm.connectingLine }
-      }),
-      _vm._v(" "),
-      _c("rect", {
-        staticStyle: {
-          fill: "#94afd1",
-          "fill-opacity": "1",
-          "stroke-width": "0.26458332"
-        },
+      },
+      [_vm._v(" " + _vm._s(_vm.build.commodityTitle) + " ")]
+    ),
+    _vm._v(" "),
+    _c(
+      "text",
+      {
         attrs: {
-          width: _vm.boxWidth,
-          height: _vm.boxHeight,
-          x: _vm.x,
-          y: _vm.y + 60,
-          ry: "1.7936023"
+          x: _vm.x + 6,
+          y: _vm.y + 78,
+          fill: "black",
+          "font-size": "7px"
         }
-      }),
-      _vm._v(" "),
-      _c(
-        "text",
-        {
-          attrs: {
-            x: _vm.x + 2,
-            y: _vm.y + 70,
-            fill: "black",
-            "font-size": "7px"
-          }
-        },
-        [_vm._v(" " + _vm._s(_vm.build.commodityTitle) + " ")]
-      ),
-      _vm._v(" "),
-      _c(
-        "text",
-        {
-          attrs: {
-            x: _vm.x + 6,
-            y: _vm.y + 78,
-            fill: "black",
-            "font-size": "7px"
-          }
-        },
-        [
-          _vm._v(
-            " " +
-              _vm._s(_vm.displayAmount) +
-              " / " +
-              _vm._s(_vm.build.commodityMax) +
-              " "
-          )
-        ]
-      )
-    ]
-  )
+      },
+      [
+        _vm._v(
+          " " +
+            _vm._s(_vm.displayAmount) +
+            " / " +
+            _vm._s(_vm.build.commodityMax) +
+            " "
+        )
+      ]
+    )
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -25307,6 +25291,7 @@ const Template = `
       />
 
     <h1 class="gameOver" v-if="endText.show"> {{endText.text}} </h1>
+    <div class="blankSpace" v-if="screenIsBlank" @click="blankClicked"/>
   </div>
 `;
 
@@ -25364,7 +25349,9 @@ const Config = {
       otherOffers: [],
       tradeDialogConfig: { width: 0, showing: false, message: "" },
       endText: { text: 'Game Over', show: false },
-      wsHandler: null
+      wsHandler: null,
+      screenIsBlank: false,
+      dialogToClose: null
     };
   },
   computed: {
@@ -25414,11 +25401,13 @@ const Config = {
       } else {
         if (this.menuOptions.width == 0) {
           //open menu
+          this.blankScreen('menu');
           this.menuOptions.currMenu = 0;
           this.menuConfig[0].prevMenu = null;
           this.menuOptions.width = 250;
         } else if (current == 0) {
           //close menu
+          this.blankScreen('menu');
           this.menuOptions.width = 0;
           this.menuOptions.currMenu = 0;
           this.menuConfig[0].prevMenu = null;
@@ -25431,6 +25420,7 @@ const Config = {
       //console.log('width: ', this.menuOptions.width)
     },
     toggleMarket: function () {
+      this.blankScreen('market');
       if (this.marketOptions.width == 0) {
         this.marketOptions.width = 250;
         this.getOffers();
@@ -25660,6 +25650,27 @@ const Config = {
           }
         }
       });
+    },
+    blankScreen: function (toClose) {
+      if (this.screenIsBlank) {
+        this.screenIsBlank = false;
+        this.dialogToClose = null;
+      } else {
+        this.screenIsBlank = true;
+        if (toClose === 'market') {
+          this.dialogToClose = 'market';
+        } else if (toClose === 'menu') {
+          this.dialogToClose = 'menu';
+        }
+      }
+    },
+    blankClicked: function () {
+      //console.log("clicked on blank", this.dialogToClose)
+      if (this.dialogToClose === 'market') {
+        this.toggleMarket();
+      } else if (this.dialogToClose === 'menu') {
+        this.postMenu(null, 0);
+      }
     }
   },
   watch: {

@@ -6,7 +6,10 @@
 
 <template>
 
-  <g class="building" v-show="build.owned">
+  <g class="building" >
+
+    
+
     <text class="percentage" :x="x + 1" :y="y - 1" fill="black" font-size="5px"> {{build.percent}}% </text>
     <rect style="fill:#94afd1;fill-opacity:1;stroke-width:0.26458332"
     :width="boxWidth"

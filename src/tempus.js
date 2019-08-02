@@ -77,6 +77,7 @@ const Template = `
       />
 
     <h1 class="gameOver" v-if="endText.show"> {{endText.text}} </h1>
+    <div class="blankSpace" v-if="screenIsBlank" @click="blankClicked"/>
   </div>
 `
 
@@ -156,6 +157,8 @@ const Config = {
     tradeDialogConfig: {width: 0, showing: false, message: "",},
     endText: {text: 'Game Over', show: false},
     wsHandler: null,
+    screenIsBlank: false,
+    dialogToClose: null,
   }},
   computed: {
     width: function() {return this.maxX - this.minX},
@@ -190,11 +193,13 @@ const Config = {
       }
       else {
         if (this.menuOptions.width == 0) {  //open menu
+          this.blankScreen('menu')
           this.menuOptions.currMenu = 0
           this.menuConfig[0].prevMenu = null
           this.menuOptions.width = 250
         }
         else if (current == 0) {  //close menu
+          this.blankScreen('menu')
           this.menuOptions.width = 0
           this.menuOptions.currMenu = 0
           this.menuConfig[0].prevMenu = null
@@ -207,6 +212,7 @@ const Config = {
       //console.log('width: ', this.menuOptions.width)
     },
     toggleMarket: function() {
+      this.blankScreen('market')
       if (this.marketOptions.width == 0) {
         this.marketOptions.width = 250
         this.getOffers()
@@ -446,6 +452,30 @@ const Config = {
           }
         },
       })
+    },
+    blankScreen: function(toClose) {
+      if (this.screenIsBlank) {
+        this.screenIsBlank = false
+        this.dialogToClose = null
+      }
+      else {
+        this.screenIsBlank = true
+        if (toClose === 'market') {
+          this.dialogToClose = 'market'
+        }
+        else if (toClose === 'menu') {
+          this.dialogToClose = 'menu'
+        }
+      }
+    },
+    blankClicked: function() {
+      //console.log("clicked on blank", this.dialogToClose)
+      if (this.dialogToClose === 'market') {
+        this.toggleMarket()
+      }
+      else if (this.dialogToClose === 'menu') {
+        this.postMenu(null, 0)
+      }
     },
   },
   watch: {

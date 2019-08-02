@@ -1,6 +1,6 @@
 Client:
   Hold arrow keys
-  Click outside of menu to close
+  X Click outside of menu to close
   X Display Commodities at top
   X Cannot offer same things twice
   Building progression
@@ -9,8 +9,8 @@ Client:
   Wealth
   Message Center
     Notifications
-  Automatic withdrawals in trades
-  Accept trades
+  X Automatic withdrawals in trades
+  X Accept trades
   Time as a commodity
 
 
