@@ -27,7 +27,7 @@ module.exports={
     if (returnPacket.id in packets) {
       //call callback and delete packet
       packets[returnPacket.id].cb(returnPacket)
-      if (packet.type != 'offerPosted') {
+      if (returnPacket.type != 'offerPosted') {
         delete packets[returnPacket.id]
       }
       console.log("Packet recieved, status: ", returnPacket.status)

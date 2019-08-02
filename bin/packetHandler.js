@@ -32,7 +32,6 @@ module.exports={
   },
 
   handleRegister: function(packet, cb) {
-    console.log("returnLink: ", packet.returnLink, "packet: ", packet)
     db.users.push(packet.user)
     cb({type: 'return', id: packet.id, status: 'good',})
   },

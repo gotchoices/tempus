@@ -129,8 +129,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
 
 
 const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
@@ -143,9 +141,7 @@ const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
       y: 70,
       boxHeight: 30,
       boxWidth: 30,
-      timeCounter: 0,
-      tradeIcon: 'icons/trading.png',
-      trading: true
+      timeCounter: 0
     };
   },
   computed: {
@@ -11867,38 +11863,6 @@ var render = function() {
           x: _vm.x,
           y: _vm.y + 60,
           ry: "1.7936023"
-        }
-      }),
-      _vm._v(" "),
-      _c("image", {
-        staticClass: "icon",
-        attrs: {
-          "xlink:href": _vm.tradeIcon,
-          x: _vm.x + 1,
-          y: _vm.y + 19,
-          height: "10",
-          width: "10"
-        },
-        on: {
-          click: function($event) {
-            return _vm.$emit("toggle-trade-dialog")
-          }
-        }
-      }),
-      _vm._v(" "),
-      _c("image", {
-        staticClass: "icon",
-        attrs: {
-          "xlink:href": _vm.tradeIcon,
-          x: _vm.x + 1,
-          y: _vm.y + 80,
-          height: "10",
-          width: "10"
-        },
-        on: {
-          click: function($event) {
-            return _vm.$emit("toggle-trade-dialog")
-          }
         }
       }),
       _vm._v(" "),
@@ -25164,7 +25128,7 @@ module.exports = {
     if (returnPacket.id in packets) {
       //call callback and delete packet
       packets[returnPacket.id].cb(returnPacket);
-      if (packet.type != 'offerPosted') {
+      if (returnPacket.type != 'offerPosted') {
         delete packets[returnPacket.id];
       }
       console.log("Packet recieved, status: ", returnPacket.status);

@@ -26,8 +26,6 @@
     :y="y + 60"
     ry="1.7936023"
     />
-    <image class="icon" :xlink:href="tradeIcon" :x="x + 1" :y="y + 19" height="10" width="10" @click="$emit('toggle-trade-dialog')"/>
-    <image class="icon" :xlink:href="tradeIcon" :x="x + 1" :y="y + 80" height="10" width="10" @click="$emit('toggle-trade-dialog')"/>
     <text :x="x + 2" :y="y + 70" fill="black" font-size="7px"> {{build.commodityTitle}} </text>
     <text :x="x + 6" :y="y + 78" fill="black" font-size="7px"> {{displayAmount}} / {{build.commodityMax}} </text>
   </g>
@@ -46,8 +44,6 @@ export default {
     boxHeight: 30,
     boxWidth: 30,
     timeCounter: 0,
-    tradeIcon: 'icons/trading.png',
-    trading: true,
   }},
   computed: {
     displayAmount: function() {return Math.floor(this.build.commodityAmount)},
