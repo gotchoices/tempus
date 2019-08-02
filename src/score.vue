@@ -1,8 +1,6 @@
 //Tempus Valorem - Scores Component
 //Copyright Kyle Bateman; all rights reserved
 // -----------------------------------------------------------------------------
-//TODO:
-//-
 
 <template>
 

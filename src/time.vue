@@ -71,7 +71,7 @@ export default {
   },
 
   beforeMount: function() {
-console.log("Scale:", this.xScale, this.yScale)
+    //console.log("Scale:", this.xScale, this.yScale)
   },
 
   mounted: function() {

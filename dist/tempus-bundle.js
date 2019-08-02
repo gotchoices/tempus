@@ -173,9 +173,9 @@ const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
 
   methods: {
     everyTick() {
-      if (this.build.showBuilding == true) {
+      if (this.build.owned == true) {
         var amountAdded = this.build.percent * this.build.rate;
-        this.$emit('add-commodity', this.build.id, amountAdded);
+        this.$emit('add-commodity', this.build.index, amountAdded);
       }
     }
   },
@@ -189,6 +189,50 @@ const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
       this.timeCounter++;
     });
   }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js?!./src/commodities.vue?vue&type=script&lang=js&":
+/*!****************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib??vue-loader-options!./src/commodities.vue?vue&type=script&lang=js& ***!
+  \****************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var interactjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! interactjs */ "./node_modules/interactjs/dist/interact.js");
+/* harmony import */ var interactjs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(interactjs__WEBPACK_IMPORTED_MODULE_0__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: 'tempus-commodities',
+  props: ['buildings'],
+  data() {
+    return {};
+  },
+
+  computed: {},
+
+  methods: {},
+
+  mounted: function () {}
 });
 
 /***/ }),
@@ -228,20 +272,59 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
 const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  name: 'tempus-trade-menu',
-  props: ['offers'],
+  name: 'tempus-market',
+  props: ['myOffers', 'otherOffers', 'options', 'buildings'],
   data() {
-    return {};
+    return {
+      backIcon: 'icons/close.png'
+    };
   },
   computed: {},
 
-  methods: {},
+  methods: {
+    closeMarket: function () {
+      this.$emit('toggle-market');
+    },
+    newOffer: function () {
+      this.$emit('toggle-trade-dialog');
+    },
+    acceptOffer: function (offer) {
+      if (offer.acceptType === 'capital') {
+        if (this.buildings[offer.toAccept].owned === false) {
+          this.options.message = 'Cannot accept trade, You do not own the required item(s)';
+          return;
+        }
+      } else if (offer.acceptType === 'commodity') {
+        if (this.buildings[offer.toAccept].commodityAmount <= offer.amountIn) {
+          this.options.message = 'Cannot accept trade, You do not own the required item(s)';
+          return;
+        }
+      }
+      this.otherOffers.splice(this.otherOffers.indexOf(offer), 1);
+      this.$emit('accept-offer', offer.id);
+    }
+  },
 
   mounted: function () {}
 });
@@ -308,8 +391,6 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var interactjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! interactjs */ "./node_modules/interactjs/dist/interact.js");
 /* harmony import */ var interactjs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(interactjs__WEBPACK_IMPORTED_MODULE_0__);
-//
-//
 //
 //
 //
@@ -445,7 +526,7 @@ const NativeSVG = 600; //Original SVG size
   methods: {},
 
   beforeMount: function () {
-    console.log("Scale:", this.xScale, this.yScale);
+    //console.log("Scale:", this.xScale, this.yScale)
   },
 
   mounted: function () {
@@ -517,43 +598,95 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'tempus-trade-dialog',
-  props: ['config', 'buildings'],
+  props: ['config', 'buildings', 'allBuildings'],
   data() {
     return {
       backIcon: 'icons/close.png',
-      capital: null,
-      commodity: null,
-      amount: null,
-      showAmount: false
+      capitalOut: null,
+      commodityOut: null,
+      amountOut: null,
+      showAmountOut: false,
+      capitalIn: null,
+      commodityIn: null,
+      amountIn: null,
+      showAmountIn: false
     };
   },
   computed: {},
   methods: {
     postOffer: function () {
       //console.log("type: ", typeof this.amount)
-      if (this.capital === null && this.commodity === null) {
+
+      if (this.capitalOut === null && this.commodityOut === null) {
         this.config.message = 'Empty Selection, please select what you would like to trade';
-      } else if (this.capital != null && this.commodity != null) {
+      } else if (this.capitalOut != null && this.commodityOut != null) {
         this.config.message = 'Please only select one thing to trade';
-      } else if (this.commodity != null && this.amount === null) {
-        this.config.message = 'Please enter an amount';
-      } else if (this.commodity != null && typeof this.amount === 'string') {
-        this.config.message = 'Invalid amount, please input a number';
+      } else if (this.commodityOut != null && this.amountOut === null) {
+        this.config.message = 'Please enter an amount to trade';
+      } else if (this.commodityOut != null && typeof this.amountOut === 'string') {
+        this.config.message = 'Invalid trading amount, please input a number';
         //console.log("Invalid type")
-      } else if (this.capital != null && this.amount != null) {
-        this.amount = null;
-      } else {
-        this.$emit('post-offer', this.selected, this.amount);
+      } else if (this.capitalOut != null && this.amountOut != null) {
+        this.amountOut = null;
+      } else if (this.capitalIn === null && this.commodityIn === null && this.amountIn === null) {
+        this.config.message = 'Empty Selection, please select what you will accept';
+      } else if (this.capitalIn != null && this.commodityIn != null) {
+        this.config.message = 'Please only select one thing to accept';
+      } else if (this.commodityIn != null && this.amountIn === null) {
+        this.config.message = 'Please enter an amount to accept';
+      } else if (this.commodityIn != null && typeof this.amountIn === 'string') {
+        this.config.message = 'Invalid accepting amount, please input a number';
+      } else if (this.capitalOut != null) {
+        if (this.capitalIn === null) {
+          this.$emit('post-offer', 'capital', 'commodity', this.capitalOut, null, this.commodityIn, this.amountIn);
+        } else {
+          this.$emit('post-offer', 'capital', 'capital', this.capitalOut, null, this.capitalIn, null);
+        }
+      } else if (this.commodityOut != null) {
+        if (this.allBuildings[this.commodityOut].commodityAmount < this.amountOut) {
+          this.config.message = 'Amount is greater than amount owned, please enter a lower amount';
+        } else {
+          if (this.capitalIn === null) {
+            this.$emit('post-offer', 'commodity', 'commodity', this.commodityOut, this.amountOut, this.commodityIn, this.amountIn);
+          } else {
+            this.$emit('post-offer', 'commodity', 'capital', this.commodityOut, this.amountOut, this.capitalIn, null);
+          }
+        }
       }
     },
     clear: function () {
-      this.commodity = null;
-      this.capital = null;
-      this.amount = null;
+      this.commodityOut = null;
+      this.capitalOut = null;
+      this.amountOut = null;
+      this.commodityIn = null;
+      this.capitalIn = null;
+      this.amountIn = null;
       this.config.message = "";
     },
     closeDialog: function () {
@@ -11417,6 +11550,206 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 
 /***/ }),
 
+/***/ "./node_modules/uuid/lib/bytesToUuid.js":
+/*!**********************************************!*\
+  !*** ./node_modules/uuid/lib/bytesToUuid.js ***!
+  \**********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+/**
+ * Convert array of 16 byte values to UUID string format of the form:
+ * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+ */
+var byteToHex = [];
+for (var i = 0; i < 256; ++i) {
+  byteToHex[i] = (i + 0x100).toString(16).substr(1);
+}
+
+function bytesToUuid(buf, offset) {
+  var i = offset || 0;
+  var bth = byteToHex;
+  // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
+  return ([bth[buf[i++]], bth[buf[i++]], 
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]],
+	bth[buf[i++]], bth[buf[i++]],
+	bth[buf[i++]], bth[buf[i++]]]).join('');
+}
+
+module.exports = bytesToUuid;
+
+
+/***/ }),
+
+/***/ "./node_modules/uuid/lib/rng-browser.js":
+/*!**********************************************!*\
+  !*** ./node_modules/uuid/lib/rng-browser.js ***!
+  \**********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+// Unique ID creation requires a high quality random # generator.  In the
+// browser this is a little complicated due to unknown quality of Math.random()
+// and inconsistent support for the `crypto` API.  We do the best we can via
+// feature-detection
+
+// getRandomValues needs to be invoked in a context where "this" is a Crypto
+// implementation. Also, find the complete implementation of crypto on IE11.
+var getRandomValues = (typeof(crypto) != 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto)) ||
+                      (typeof(msCrypto) != 'undefined' && typeof window.msCrypto.getRandomValues == 'function' && msCrypto.getRandomValues.bind(msCrypto));
+
+if (getRandomValues) {
+  // WHATWG crypto RNG - http://wiki.whatwg.org/wiki/Crypto
+  var rnds8 = new Uint8Array(16); // eslint-disable-line no-undef
+
+  module.exports = function whatwgRNG() {
+    getRandomValues(rnds8);
+    return rnds8;
+  };
+} else {
+  // Math.random()-based (RNG)
+  //
+  // If all else fails, use Math.random().  It's fast, but is of unspecified
+  // quality.
+  var rnds = new Array(16);
+
+  module.exports = function mathRNG() {
+    for (var i = 0, r; i < 16; i++) {
+      if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
+      rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
+    }
+
+    return rnds;
+  };
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/uuid/v1.js":
+/*!*********************************!*\
+  !*** ./node_modules/uuid/v1.js ***!
+  \*********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var rng = __webpack_require__(/*! ./lib/rng */ "./node_modules/uuid/lib/rng-browser.js");
+var bytesToUuid = __webpack_require__(/*! ./lib/bytesToUuid */ "./node_modules/uuid/lib/bytesToUuid.js");
+
+// **`v1()` - Generate time-based UUID**
+//
+// Inspired by https://github.com/LiosK/UUID.js
+// and http://docs.python.org/library/uuid.html
+
+var _nodeId;
+var _clockseq;
+
+// Previous uuid creation time
+var _lastMSecs = 0;
+var _lastNSecs = 0;
+
+// See https://github.com/broofa/node-uuid for API details
+function v1(options, buf, offset) {
+  var i = buf && offset || 0;
+  var b = buf || [];
+
+  options = options || {};
+  var node = options.node || _nodeId;
+  var clockseq = options.clockseq !== undefined ? options.clockseq : _clockseq;
+
+  // node and clockseq need to be initialized to random values if they're not
+  // specified.  We do this lazily to minimize issues related to insufficient
+  // system entropy.  See #189
+  if (node == null || clockseq == null) {
+    var seedBytes = rng();
+    if (node == null) {
+      // Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
+      node = _nodeId = [
+        seedBytes[0] | 0x01,
+        seedBytes[1], seedBytes[2], seedBytes[3], seedBytes[4], seedBytes[5]
+      ];
+    }
+    if (clockseq == null) {
+      // Per 4.2.2, randomize (14 bit) clockseq
+      clockseq = _clockseq = (seedBytes[6] << 8 | seedBytes[7]) & 0x3fff;
+    }
+  }
+
+  // UUID timestamps are 100 nano-second units since the Gregorian epoch,
+  // (1582-10-15 00:00).  JSNumbers aren't precise enough for this, so
+  // time is handled internally as 'msecs' (integer milliseconds) and 'nsecs'
+  // (100-nanoseconds offset from msecs) since unix epoch, 1970-01-01 00:00.
+  var msecs = options.msecs !== undefined ? options.msecs : new Date().getTime();
+
+  // Per 4.2.1.2, use count of uuid's generated during the current clock
+  // cycle to simulate higher resolution clock
+  var nsecs = options.nsecs !== undefined ? options.nsecs : _lastNSecs + 1;
+
+  // Time since last uuid creation (in msecs)
+  var dt = (msecs - _lastMSecs) + (nsecs - _lastNSecs)/10000;
+
+  // Per 4.2.1.2, Bump clockseq on clock regression
+  if (dt < 0 && options.clockseq === undefined) {
+    clockseq = clockseq + 1 & 0x3fff;
+  }
+
+  // Reset nsecs if clock regresses (new clockseq) or we've moved onto a new
+  // time interval
+  if ((dt < 0 || msecs > _lastMSecs) && options.nsecs === undefined) {
+    nsecs = 0;
+  }
+
+  // Per 4.2.1.2 Throw error if too many uuids are requested
+  if (nsecs >= 10000) {
+    throw new Error('uuid.v1(): Can\'t create more than 10M uuids/sec');
+  }
+
+  _lastMSecs = msecs;
+  _lastNSecs = nsecs;
+  _clockseq = clockseq;
+
+  // Per 4.1.4 - Convert from unix epoch to Gregorian epoch
+  msecs += 12219292800000;
+
+  // `time_low`
+  var tl = ((msecs & 0xfffffff) * 10000 + nsecs) % 0x100000000;
+  b[i++] = tl >>> 24 & 0xff;
+  b[i++] = tl >>> 16 & 0xff;
+  b[i++] = tl >>> 8 & 0xff;
+  b[i++] = tl & 0xff;
+
+  // `time_mid`
+  var tmh = (msecs / 0x100000000 * 10000) & 0xfffffff;
+  b[i++] = tmh >>> 8 & 0xff;
+  b[i++] = tmh & 0xff;
+
+  // `time_high_and_version`
+  b[i++] = tmh >>> 24 & 0xf | 0x10; // include version
+  b[i++] = tmh >>> 16 & 0xff;
+
+  // `clock_seq_hi_and_reserved` (Per 4.2.2 - include variant)
+  b[i++] = clockseq >>> 8 | 0x80;
+
+  // `clock_seq_low`
+  b[i++] = clockseq & 0xff;
+
+  // `node`
+  for (var n = 0; n < 6; ++n) {
+    b[i + n] = node[n];
+  }
+
+  return buf ? buf : bytesToUuid(b);
+}
+
+module.exports = v1;
+
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./src/building.vue?vue&type=template&id=a2495ce6&":
 /*!***************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./src/building.vue?vue&type=template&id=a2495ce6& ***!
@@ -11439,8 +11772,8 @@ var render = function() {
         {
           name: "show",
           rawName: "v-show",
-          value: _vm.build.showBuilding,
-          expression: "build.showBuilding"
+          value: _vm.build.owned,
+          expression: "build.owned"
         }
       ],
       staticClass: "building"
@@ -11485,7 +11818,7 @@ var render = function() {
         },
         on: {
           click: function($event) {
-            return _vm.$emit("increment-percent", _vm.build.id)
+            return _vm.$emit("increment-percent", _vm.build.index)
           }
         }
       }),
@@ -11500,7 +11833,7 @@ var render = function() {
         },
         on: {
           click: function($event) {
-            return _vm.$emit("decrement-percent", _vm.build.id)
+            return _vm.$emit("decrement-percent", _vm.build.index)
           }
         }
       }),
@@ -11612,6 +11945,48 @@ render._withStripped = true
 
 /***/ }),
 
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./src/commodities.vue?vue&type=template&id=2a150bc2&":
+/*!******************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./src/commodities.vue?vue&type=template&id=2a150bc2& ***!
+  \******************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    { staticClass: "commoditiesBox" },
+    _vm._l(_vm.buildings, function(commodity) {
+      return _c("span", [
+        _c("p", [
+          _vm._v(
+            _vm._s(commodity.commodityTitle) +
+              ": " +
+              _vm._s(Math.floor(commodity.commodityAmount)) +
+              " (" +
+              _vm._s(commodity.commodityReserved) +
+              ")"
+          )
+        ])
+      ])
+    }),
+    0
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./src/market.vue?vue&type=template&id=1be06b55&":
 /*!*************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./src/market.vue?vue&type=template&id=1be06b55& ***!
@@ -11628,44 +12003,110 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", [
-    _c("div", { staticClass: "tradeMenu" }, [
-      _c(
-        "div",
-        { staticClass: "tradeMenuDivider top" },
-        [
-          _c("h2", { staticClass: "dividerHeading" }, [_vm._v(" My Offers ")]),
-          _vm._v(" "),
-          _vm._l(_vm.offers, function(offer, index) {
-            return _c("div", { staticClass: "offer" }, [
-              _c("text", { staticClass: "offer title" }, [
-                _vm._v(" " + _vm._s(_vm.offers[index].title) + " ")
-              ]),
-              _vm._v(" "),
-              _c("text", { staticClass: "offer content" }, [
-                _vm._v(" " + _vm._s(_vm.offers[index].content) + " ")
-              ])
-            ])
+    _c(
+      "div",
+      { staticClass: "market", style: "width: " + _vm.options.width + "px" },
+      [
+        _c("span", [
+          _c("img", {
+            staticClass: "icon closebtn",
+            attrs: { src: _vm.backIcon },
+            on: { click: _vm.closeMarket }
           })
-        ],
-        2
-      ),
-      _vm._v(" "),
-      _vm._m(0)
-    ])
+        ]),
+        _vm._v(" "),
+        _c("button", { on: { click: _vm.newOffer } }, [_vm._v("New Offer")]),
+        _vm._v(" "),
+        _c("p", [_vm._v(" " + _vm._s(_vm.options.message) + " ")]),
+        _vm._v(" "),
+        _c(
+          "div",
+          { staticClass: "marketDivider top" },
+          [
+            _c("h2", { staticClass: "dividerHeading" }, [
+              _vm._v(" My Offers ")
+            ]),
+            _vm._v(" "),
+            _vm._l(_vm.myOffers, function(offer, index) {
+              return _c("div", { staticClass: "offer" }, [
+                _c("p", [
+                  _vm._v(" Offering: " + _vm._s(offer.tradeTitle) + " ")
+                ]),
+                _vm._v(" "),
+                offer.amountOut
+                  ? _c("p", [
+                      _vm._v(" Amount: " + _vm._s(offer.amountOut) + " ")
+                    ])
+                  : _vm._e(),
+                _vm._v(" "),
+                _c("p", [
+                  _vm._v(" Accepting: " + _vm._s(offer.acceptTitle) + " ")
+                ]),
+                _vm._v(" "),
+                offer.amountIn
+                  ? _c("p", [
+                      _vm._v(" Amount: " + _vm._s(offer.amountIn) + " ")
+                    ])
+                  : _vm._e()
+              ])
+            })
+          ],
+          2
+        ),
+        _vm._v(" "),
+        _c(
+          "div",
+          { staticClass: "marketDivider bottom" },
+          [
+            _c("h2", { staticClass: "dividerHeading bottom" }, [
+              _vm._v(" Other Offers ")
+            ]),
+            _vm._v(" "),
+            _vm._l(_vm.otherOffers, function(offer, index) {
+              return _c("div", { staticClass: "offer" }, [
+                _c("p", [_vm._v(" Name: " + _vm._s(offer.user) + " ")]),
+                _vm._v(" "),
+                _c("p", [
+                  _vm._v(" Offering: " + _vm._s(offer.tradeTitle) + " ")
+                ]),
+                _vm._v(" "),
+                offer.amountOut
+                  ? _c("p", [
+                      _vm._v(" Amount: " + _vm._s(offer.amountOut) + " ")
+                    ])
+                  : _vm._e(),
+                _vm._v(" "),
+                _c("p", [
+                  _vm._v(" Accepting: " + _vm._s(offer.acceptTitle) + " ")
+                ]),
+                _vm._v(" "),
+                offer.amountIn
+                  ? _c("p", [
+                      _vm._v(" Amount: " + _vm._s(offer.amountIn) + " ")
+                    ])
+                  : _vm._e(),
+                _vm._v(" "),
+                _c(
+                  "button",
+                  {
+                    on: {
+                      click: function($event) {
+                        return _vm.acceptOffer(offer)
+                      }
+                    }
+                  },
+                  [_vm._v("Accept")]
+                )
+              ])
+            })
+          ],
+          2
+        )
+      ]
+    )
   ])
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "tradeMenuDivider bottom" }, [
-      _c("h2", { staticClass: "dividerHeading bottom" }, [
-        _vm._v(" Other Offers ")
-      ])
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -11937,6 +12378,8 @@ var render = function() {
         _vm._v(" "),
         _c("h2", [_vm._v(" Trade Dialog ")]),
         _vm._v(" "),
+        _c("p", [_vm._v("Offering:")]),
+        _vm._v(" "),
         _c(
           "select",
           {
@@ -11944,8 +12387,8 @@ var render = function() {
               {
                 name: "model",
                 rawName: "v-model",
-                value: _vm.capital,
-                expression: "capital"
+                value: _vm.capitalOut,
+                expression: "capitalOut"
               }
             ],
             on: {
@@ -11958,7 +12401,7 @@ var render = function() {
                     var val = "_value" in o ? o._value : o.value
                     return val
                   })
-                _vm.capital = $event.target.multiple
+                _vm.capitalOut = $event.target.multiple
                   ? $$selectedVal
                   : $$selectedVal[0]
               }
@@ -11970,7 +12413,7 @@ var render = function() {
             ]),
             _vm._v(" "),
             _vm._l(_vm.buildings, function(building) {
-              return _c("option", { domProps: { value: building.title } }, [
+              return _c("option", { domProps: { value: building.index } }, [
                 _vm._v("\n        " + _vm._s(building.title) + "\n      ")
               ])
             })
@@ -11987,8 +12430,8 @@ var render = function() {
               {
                 name: "model",
                 rawName: "v-model",
-                value: _vm.commodity,
-                expression: "commodity"
+                value: _vm.commodityOut,
+                expression: "commodityOut"
               }
             ],
             on: {
@@ -12001,7 +12444,7 @@ var render = function() {
                     var val = "_value" in o ? o._value : o.value
                     return val
                   })
-                _vm.commodity = $event.target.multiple
+                _vm.commodityOut = $event.target.multiple
                   ? $$selectedVal
                   : $$selectedVal[0]
               }
@@ -12013,39 +12456,152 @@ var render = function() {
             ]),
             _vm._v(" "),
             _vm._l(_vm.buildings, function(building) {
-              return _c(
-                "option",
-                { domProps: { value: building.commodityTitle } },
-                [
-                  _vm._v(
-                    "\n        " + _vm._s(building.commodityTitle) + "\n      "
-                  )
-                ]
-              )
+              return _c("option", { domProps: { value: building.index } }, [
+                _vm._v(
+                  "\n        " + _vm._s(building.commodityTitle) + "\n      "
+                )
+              ])
             })
           ],
           2
         ),
         _vm._v(" "),
-        _vm.commodity
+        _vm.commodityOut != null
           ? _c("input", {
               directives: [
                 {
                   name: "model",
                   rawName: "v-model.number",
-                  value: _vm.amount,
-                  expression: "amount",
+                  value: _vm.amountOut,
+                  expression: "amountOut",
                   modifiers: { number: true }
                 }
               ],
               attrs: { placeholder: "Amount to trade" },
-              domProps: { value: _vm.amount },
+              domProps: { value: _vm.amountOut },
               on: {
                 input: function($event) {
                   if ($event.target.composing) {
                     return
                   }
-                  _vm.amount = _vm._n($event.target.value)
+                  _vm.amountOut = _vm._n($event.target.value)
+                },
+                blur: function($event) {
+                  return _vm.$forceUpdate()
+                }
+              }
+            })
+          : _vm._e(),
+        _vm._v(" "),
+        _c("br"),
+        _vm._v(" "),
+        _c("p", [_vm._v("Accepting")]),
+        _vm._v(" "),
+        _c(
+          "select",
+          {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.capitalIn,
+                expression: "capitalIn"
+              }
+            ],
+            on: {
+              change: function($event) {
+                var $$selectedVal = Array.prototype.filter
+                  .call($event.target.options, function(o) {
+                    return o.selected
+                  })
+                  .map(function(o) {
+                    var val = "_value" in o ? o._value : o.value
+                    return val
+                  })
+                _vm.capitalIn = $event.target.multiple
+                  ? $$selectedVal
+                  : $$selectedVal[0]
+              }
+            }
+          },
+          [
+            _c("option", { attrs: { disabled: "", value: "null" } }, [
+              _vm._v(" Capital ")
+            ]),
+            _vm._v(" "),
+            _vm._l(_vm.allBuildings, function(building) {
+              return _c("option", { domProps: { value: building.index } }, [
+                _vm._v("\n        " + _vm._s(building.title) + "\n      ")
+              ])
+            })
+          ],
+          2
+        ),
+        _vm._v(" "),
+        _c("br"),
+        _vm._v(" "),
+        _c(
+          "select",
+          {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.commodityIn,
+                expression: "commodityIn"
+              }
+            ],
+            on: {
+              change: function($event) {
+                var $$selectedVal = Array.prototype.filter
+                  .call($event.target.options, function(o) {
+                    return o.selected
+                  })
+                  .map(function(o) {
+                    var val = "_value" in o ? o._value : o.value
+                    return val
+                  })
+                _vm.commodityIn = $event.target.multiple
+                  ? $$selectedVal
+                  : $$selectedVal[0]
+              }
+            }
+          },
+          [
+            _c("option", { attrs: { disabled: "", value: "null" } }, [
+              _vm._v(" Commodities ")
+            ]),
+            _vm._v(" "),
+            _vm._l(_vm.allBuildings, function(building) {
+              return _c("option", { domProps: { value: building.index } }, [
+                _vm._v(
+                  "\n        " + _vm._s(building.commodityTitle) + "\n      "
+                )
+              ])
+            })
+          ],
+          2
+        ),
+        _vm._v(" "),
+        _vm.commodityIn != null
+          ? _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model.number",
+                  value: _vm.amountIn,
+                  expression: "amountIn",
+                  modifiers: { number: true }
+                }
+              ],
+              attrs: { placeholder: "Amount to receive" },
+              domProps: { value: _vm.amountIn },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.amountIn = _vm._n($event.target.value)
                 },
                 blur: function($event) {
                   return _vm.$forceUpdate()
@@ -24367,6 +24923,75 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./src/commodities.vue":
+/*!*****************************!*\
+  !*** ./src/commodities.vue ***!
+  \*****************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _commodities_vue_vue_type_template_id_2a150bc2___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./commodities.vue?vue&type=template&id=2a150bc2& */ "./src/commodities.vue?vue&type=template&id=2a150bc2&");
+/* harmony import */ var _commodities_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./commodities.vue?vue&type=script&lang=js& */ "./src/commodities.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _commodities_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _commodities_vue_vue_type_template_id_2a150bc2___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _commodities_vue_vue_type_template_id_2a150bc2___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "src/commodities.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./src/commodities.vue?vue&type=script&lang=js&":
+/*!******************************************************!*\
+  !*** ./src/commodities.vue?vue&type=script&lang=js& ***!
+  \******************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_commodities_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../node_modules/babel-loader/lib!../node_modules/vue-loader/lib??vue-loader-options!./commodities.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js?!./src/commodities.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_commodities_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./src/commodities.vue?vue&type=template&id=2a150bc2&":
+/*!************************************************************!*\
+  !*** ./src/commodities.vue?vue&type=template&id=2a150bc2& ***!
+  \************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_commodities_vue_vue_type_template_id_2a150bc2___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../node_modules/vue-loader/lib??vue-loader-options!./commodities.vue?vue&type=template&id=2a150bc2& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./src/commodities.vue?vue&type=template&id=2a150bc2&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_commodities_vue_vue_type_template_id_2a150bc2___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_commodities_vue_vue_type_template_id_2a150bc2___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
 /***/ "./src/market.vue":
 /*!************************!*\
   !*** ./src/market.vue ***!
@@ -24522,11 +25147,29 @@ module.exports = {
     packets[packet.id] = packet;
   },
   recieved: function (returnPacket) {
+    if (returnPacket.type === 'offerAccepted') {
+      //handle offerAccepted
+      if (returnPacket.offer.offerType === 'capital') {
+        this.buildings[returnPacket.offer.toOffer].owned = false;
+      } else if (returnPacket.offer.offerType === 'commodity') {
+        this.buildings[returnPacket.offer.toOffer].commodityAmount -= returnPacket.offer.amountOut;
+      }
+      if (returnPacket.offer.acceptType === 'capital') {
+        this.buildings[returnPacket.offer.toAccept].owned = true;
+      } else if (returnPacket.offer.acceptType === 'commodity') {
+        this.buildings[returnPacket.offer.toAccept].commodityAmount += returnPacket.offer.amountIn;
+      }
+      delete packets[returnPacket.id];
+    }
     if (returnPacket.id in packets) {
       //call callback and delete packet
       packets[returnPacket.id].cb(returnPacket);
-      delete packets[returnPacket.id];
+      if (packet.type != 'offerPosted') {
+        delete packets[returnPacket.id];
+      }
       console.log("Packet recieved, status: ", returnPacket.status);
+    } else {
+      console.log("Unknown packet recieved, id: ", returnPacket.id);
     }
   }
 };
@@ -24620,6 +25263,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _market_vue__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./market.vue */ "./src/market.vue");
 /* harmony import */ var _tradeDialog_vue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./tradeDialog.vue */ "./src/tradeDialog.vue");
 /* harmony import */ var _score_vue__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./score.vue */ "./src/score.vue");
+/* harmony import */ var _commodities_vue__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./commodities.vue */ "./src/commodities.vue");
 //Tempus Valorem
 //Copyright Kyle Bateman; all rights reserved
 // -----------------------------------------------------------------------------
@@ -24642,7 +25286,7 @@ const Template = `
     <button @click="startTimer"> Start Timer </button>
     <button @click="stopTimer"> Stop Timer </button>
     <button @click="sendPacket"> Send Packet </button>
-    <span class="open" id="tradeButton">
+    <span class="open" id="marketButton" @click="toggleMarket">
       <img class="icon" src="icons/trading.png"/>
     </span>
     <tempus-menu
@@ -24651,26 +25295,32 @@ const Template = `
       v-on:fetch-scores="fetchScores"
       :config="menuConfig[menuOptions.currMenu]"
       :options="menuOptions"/>
-    <!-- <tempus-market :offers="offers"/>
-    <button @click="addBuilding(0)"> Toggle Farm </button>
-    <button @click="addBuilding(1)"> Toggle Factory </button> -->
+    <tempus-market
+      v-on:toggle-market="toggleMarket"
+      v-on:accept-offer="acceptOffer"
+      v-on:toggle-trade-dialog="toggleTradeDialog"
+      :buildings="buildings"
+      :myOffers="myOffers"
+      :otherOffers="otherOffers"
+      :options="marketOptions"/>
+    <tempus-commodities :buildings="buildings"/>
     <svg class="tempus tempus-board" :viewBox="viewCoords">
       <path fill="none" stroke="blue" :d="svgOutline"> </path>
       <tempus-time x="1" y="1" size="50" @drag="doDrag"/>
       <tempus-score v-if="!showRegisterDialog":score="score" :user="user"/>
       <tempus-building
-      v-for="(building, index) in showingBuildings(buildings)"
-      v-on:increment-percent="incrementPercent"
-      v-on:decrement-percent="decrementPercent"
-      v-on:add-commodity="addCommodity"
-      v-on:toggle-trade-dialog="toggleTradeDialog"
-      :build="building"
-      :key="building.id"
-      :index="index"
+        v-for="(building, index) in showingBuildings"
+        v-on:increment-percent="incrementPercent"
+        v-on:decrement-percent="decrementPercent"
+        v-on:add-commodity="addCommodity"
+        v-on:toggle-trade-dialog="toggleTradeDialog"
+        :build="building"
+        :key="building.index"
+        :index="index"
       />
       <rect class="valueBar" style="fill:#b8cae0;fill-opacity:1;stroke-width:0.26"
-      :width="val.width" :height="val.height"
-      :x="val.x" :y="val.y" :ry="val.ry"
+        :width="val.width" :height="val.height"
+        :x="val.x" :y="val.y" :ry="val.ry"
       />
       <tempus-value
       v-for="(value, index) in values"
@@ -24686,7 +25336,8 @@ const Template = `
     </svg>
     <tempus-trade-dialog
       :config="tradeDialogConfig"
-      :buildings="buildings"
+      :buildings="showingBuildings"
+      :allBuildings="buildings"
       v-on:toggle-trade-dialog="toggleTradeDialog"
       v-on:post-offer="postOffer"
       />
@@ -24702,9 +25353,11 @@ const Template = `
 
 
 
+
 var BuildingStartPos = 70;
 const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
 const PacketRegister = __webpack_require__(/*! ./packetRegister.js */ "./src/packetRegister.js");
+const Uuidv1 = __webpack_require__(/*! uuid/v1 */ "./node_modules/uuid/v1.js");
 
 const Config = {
   el: '#app',
@@ -24712,7 +25365,7 @@ const Config = {
   components: { 'tempus-time': _time_vue__WEBPACK_IMPORTED_MODULE_1__["default"], 'tempus-menu': _menu_vue__WEBPACK_IMPORTED_MODULE_2__["default"],
     'tempus-building': _building_vue__WEBPACK_IMPORTED_MODULE_3__["default"], 'tempus-value': _value_vue__WEBPACK_IMPORTED_MODULE_4__["default"],
     'tempus-market': _market_vue__WEBPACK_IMPORTED_MODULE_5__["default"], 'tempus-trade-dialog': _tradeDialog_vue__WEBPACK_IMPORTED_MODULE_6__["default"],
-    'tempus-score': _score_vue__WEBPACK_IMPORTED_MODULE_7__["default"] },
+    'tempus-score': _score_vue__WEBPACK_IMPORTED_MODULE_7__["default"], 'tempus-commodities': _commodities_vue__WEBPACK_IMPORTED_MODULE_8__["default"] },
   data() {
     return {
       minX: 0,
@@ -24727,19 +25380,24 @@ const Config = {
       score: 0,
       timeCounter: 0,
       user: "",
+      userId: null,
       registerMessage: "",
       showRegisterDialog: true,
       uniqueId: 0,
-      buildings: [{ id: 0, title: 'Farm', commodityTitle: 'Food', commodityAmount: 0, commodityMax: 50,
-        rate: 0.1, position: BuildingStartPos, showBuilding: true, percent: 0 }, { id: 1, title: 'Factory', commodityTitle: 'Materials', commodityAmount: 0, commodityMax: 40,
-        rate: 0.1, position: BuildingStartPos, showBuilding: false, percent: 0 }],
+      showingBuildings: [],
+      buildings: [{ index: 0, title: 'Farm', commodityTitle: 'Food', commodityAmount: 0, commodityReserved: 0,
+        commodityMax: 50, rate: 0.1, position: BuildingStartPos, owned: false, percent: 0 }, { index: 1, title: 'Factory', commodityTitle: 'Materials', commodityAmount: 0, commodityReserved: 0,
+        commodityMax: 40, rate: 0.1, position: BuildingStartPos, owned: false, percent: 0 }, { index: 2, title: 'Hospital', commodityTitle: 'Medicine', commodityAmount: 0, commodityReserved: 0,
+        commodityMax: 20, rate: 0.1, position: BuildingStartPos, owned: false, percent: 0 }],
       //menu props
-      menuConfig: [{ index: 0, code: 'main', title: 'Menu', prevMenu: null, subMenu: [{ name: 'Buildings', link: 1, method: 'post-menu' }, { name: 'Settings', link: 2, method: 'post-menu' }, { name: 'Scores', link: 3, method: 'post-menu' }] }, { index: 1, code: 'build', title: 'Buildings', prevMenu: null, subMenu: [{ name: 'Farm', link: 0, method: 'add-building' }, { name: 'Factory', link: 1, method: 'add-building' }] }, { index: 2, code: 'set', title: 'Settings', prevMenu: null, subMenu: [] }, { index: 3, code: 'score', title: 'Scores', prevMenu: null, subMenu: [{ name: 'Update Scores', link: null, method: 'fetch-scores' }] }],
+      menuConfig: [{ index: 0, code: 'main', title: 'Menu', prevMenu: null, subMenu: [{ name: 'Buildings', link: 1, method: 'post-menu' }, { name: 'Settings', link: 2, method: 'post-menu' }, { name: 'Scores', link: 3, method: 'post-menu' }] }, { index: 1, code: 'build', title: 'Buildings', prevMenu: null, subMenu: [{ name: 'Farm', link: 0, method: 'add-building' }, { name: 'Factory', link: 1, method: 'add-building' }, { name: 'Hospital', link: 2, method: 'add-building' }] }, { index: 2, code: 'set', title: 'Settings', prevMenu: null, subMenu: [] }, { index: 3, code: 'score', title: 'Scores', prevMenu: null, subMenu: [{ name: 'Update Scores', link: null, method: 'fetch-scores' }] }],
       menuOptions: { width: 0, prevMenu: null, currMenu: 0 },
+      marketOptions: { width: 0, message: "" },
       values: [{ id: 100, title: 'Idleness', timer: null, arrows: true, percent: 100, mltplr: 0.5, scale: 0 }, { id: 101, title: 'Health', timer: 100, arrows: true, percent: 0, mltplr: 1, scale: 0.5 }, { id: 102, title: 'Comfort', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2 }, { id: 103, title: 'Experiences', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2 }, { id: 104, title: 'Wealth', timer: null, arrows: false, percent: 0, mltplr: 1, scale: 0 }],
       valuesConfig: { x: 15, y: 205, ry: 1.8, width: 45, height: 30 },
       val: { x: 10, y: 200, ry: 1.8, width: 255, height: 40 },
-      offers: [{ id: 0, title: "JonahB", content: "50 Food" }],
+      myOffers: [],
+      otherOffers: [],
       tradeDialogConfig: { width: 0, showing: false, message: "" },
       endText: { text: 'Game Over', show: false },
       wsHandler: null
@@ -24763,7 +25421,7 @@ const Config = {
     },
     viewCoords: function () {
       //Viewport of SVG space
-      console.log('Re-render:', this.minX, this.minY, this.width, this.viewBottom);
+      //console.log('Re-render:', this.minX, this.minY, this.width, this.viewBottom)
       //need to change return statement fourth parameter back to viewBottom
       return [this.minX, this.minY, this.width, this.height].join(' ');
     },
@@ -24808,6 +25466,15 @@ const Config = {
       }
       //console.log('width: ', this.menuOptions.width)
     },
+    toggleMarket: function () {
+      if (this.marketOptions.width == 0) {
+        this.marketOptions.width = 250;
+        this.getOffers();
+      } else {
+        this.marketOptions.width = 0;
+        this.marketOptions.message = null;
+      }
+    },
     addBuilding: function (index, notUsing) {
       //notUsing only neccesary for compatibility with menu.vue
       this.buildings[index].percent = 0;
@@ -24818,19 +25485,25 @@ const Config = {
         var i = this.timeUsers.indexOf(this.buildings[index]);
         this.timeUsers.splice(i, 1);
       }
-      this.buildings[index].showBuilding = !this.buildings[index].showBuilding;
+      if (this.showingBuildings.indexOf(this.buildings[index]) == -1) {
+        this.showingBuildings.push(this.buildings[index]);
+        this.buildings[index].owned = true;
+        //console.log("Added ", this.buildings[index].title)
+        //console.log("showingBuildings.length = ", this.showingBuildings.length)
+      } else {
+        var j = this.showingBuildings.indexOf(this.buildings[index]);
+        this.showingBuildings.splice(j, 1);
+        this.buildings[index].owned = false;
+        //console.log("Removed ", this.buildings[index].title)
+      }
+      //this.buildings[index].showBuilding = !this.buildings[index].showBuilding
       //console.log(this.timeUsers.length)
-    },
-    showingBuildings: function (buildings) {
-      return buildings.filter(function (building) {
-        return building.showBuilding === true;
-      });
     },
     incrementPercent: function (id) {
       //find index
       var index = 0;
       for (var i = 0; i < this.timeUsers.length; i++) {
-        if (this.timeUsers[i].id == id) {
+        if (this.timeUsers[i].index == id) {
           index = i;
           break;
         }
@@ -24852,7 +25525,7 @@ const Config = {
       //find index
       var index = 0;
       for (var i = 0; i < this.timeUsers.length; i++) {
-        if (this.timeUsers[i].id == id) {
+        if (this.timeUsers[i].index == id) {
           index = i;
           break;
         }
@@ -24893,12 +25566,12 @@ const Config = {
         this.timeUsersIterator = 0;
       }
     },
-    addCommodity: function (id, amount) {
-      this.buildings[id].commodityAmount += amount;
-      if (this.buildings[id].commodityAmount >= this.buildings[id].commodityMax) {
-        this.buildings[id].commodityAmount = this.buildings[id].commodityMax;
+    addCommodity: function (index, amount) {
+      this.buildings[index].commodityAmount += amount;
+      if (this.buildings[index].commodityAmount >= this.buildings[index].commodityMax) {
+        this.buildings[index].commodityAmount = this.buildings[index].commodityMax;
       }
-      //console.log(this.buildings[id].commodityAmount)
+      //console.log(this.buildings[index].commodityAmount)
     },
     startTimer: function () {
       Timer.start(10);
@@ -24930,7 +25603,7 @@ const Config = {
       } else {
         this.sendPacket({
           type: 'register',
-          id: this.uniqueId++,
+          id: this.user + this.uniqueId++,
           user: user,
           cb: returnPacket => {
             this.registerMessage = this.user + ' Registered';
@@ -24943,7 +25616,7 @@ const Config = {
     fetchScores: function (index, current) {
       this.sendPacket({
         type: 'scores',
-        id: this.uniqueId++,
+        id: this.user + this.uniqueId++,
         user: this.user,
         score: Math.floor(this.score),
         cb: returnPacket => {
@@ -24955,16 +25628,72 @@ const Config = {
         }
       });
     },
-    postOffer: function (toTrade, amount) {
+    postOffer: function (offerType, acceptType, toTrade, amountOut, toAccept, amountIn) {
+      if (amountOut) {
+        this.buildings[toTrade].commodityAmount -= amountOut;
+        this.buildings[toTrade].commodityReserved += amountOut;
+      }
+      var tradeTitle = null;
+      var acceptTitle = null;
+      if (offerType === 'capital') {
+        tradeTitle = this.buildings[toTrade].title;
+      } else if (offerType === 'commodity') {
+        tradeTitle = this.buildings[toTrade].commodityTitle;
+      }
+      if (acceptType === 'capital') {
+        acceptTitle = this.buildings[toAccept].title;
+      } else if (acceptType === 'commodity') {
+        acceptTitle = this.buildings[toAccept].commodityTitle;
+      }
       this.sendPacket({
         type: 'offer',
-        id: this.uniqueId++,
+        id: this.user + this.uniqueId++,
         user: this.user,
-        offer: toTrade,
-        amount: amount,
+        offerType: offerType,
+        acceptType: acceptType,
+        tradeTitle: tradeTitle,
+        acceptTitle: acceptTitle,
+        toTrade: toTrade,
+        amountOut: amountOut,
+        toAccept: toAccept,
+        amountIn: amountIn,
         cb: returnPacket => {
           console.log("New message: ", returnPacket.message);
           this.tradeDialogConfig.message = returnPacket.message;
+        }
+      });
+    },
+    getOffers: function () {
+      this.sendPacket({
+        type: 'getOffers',
+        id: this.user + this.uniqueId++,
+        user: this.user,
+        cb: returnPacket => {
+          this.myOffers.splice(0, this.myOffers.length);
+          this.otherOffers.splice(0, this.otherOffers.length);
+          this.myOffers = returnPacket.myOffers;
+          this.otherOffers = returnPacket.otherOffers;
+        }
+      });
+    },
+    acceptOffer: function (id) {
+      this.sendPacket({
+        type: 'acceptOffer',
+        id: this.user + this.uniqueId++,
+        user: this.user,
+        offerToAccept: id,
+        cb: returnPacket => {
+          this.marketOptions.message = 'Offer Accepted';
+          if (returnPacket.offer.offerType === 'capital') {
+            this.buildings[returnPacket.offer.toTrade].owned = true;
+          } else if (returnPacket.offer.offerType === 'commodity') {
+            this.buildings[returnPacket.offer.toTrade].commodityAmount += returnPacket.offer.amountOut;
+          }
+          if (returnPacket.offer.acceptType === 'capital') {
+            this.buildings[returnPacket.offer.toAccept].owned = false;
+          } else if (returnPacket.offer.acceptType === 'commodity') {
+            this.buildings[returnPacket.offer.toAccept].commodityAmount -= returnPacket.offer.amountIn;
+          }
         }
       });
     }
@@ -24974,7 +25703,7 @@ const Config = {
   },
 
   mounted: function () {
-    console.log("Window:", window.innerHeight, window.innerWidth),
+    //console.log("Window:", window.innerHeight, window.innerWidth),
 
     //adds values to timeUsers array
     this.$nextTick(function () {
@@ -24999,20 +25728,23 @@ const Config = {
     });
 
     let address = window.location.hostname,
-        url = "ws://" + address + ":4001";
+        myId = localStorage.getItem('myId') || Uuidv1(),
+        url = "ws://" + address + ":4001/" + myId;
+    localStorage.setItem('myId', myId);
+    this.userId = myId;
     this.wsHandler = new WebSocket(url);
-    console.log("Location: ", window.location.hostname, url);
+    //console.log("Location: ", window.location.hostname, url)
     this.wsHandler.addEventListener('error', event => {
-      console.log("Error connecting");
+      //console.log("Error connecting")
     });
     this.wsHandler.addEventListener('close', event => {
-      console.log("Closed Socket");
+      //console.log("Closed Socket")
     });
     this.wsHandler.addEventListener('open', event => {
-      console.log("Opened Socket");
+      //console.log("Opened Socket")
       this.wsHandler.addEventListener('message', evt => {
         let pkt = JSON.parse(evt.data);
-        console.log("Got Message", pkt);
+        //console.log("Got Message", pkt)
         PacketRegister.recieved(pkt);
       });
     });

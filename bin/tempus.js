@@ -15,11 +15,15 @@ var wsServer = Http.createServer()
 var wsSocket = new Ws.Server({
   server: wsServer,
   clientTracking: true,
+  verifyClient: function(info, cb) {
+    //console.log("verifyClient:", info)
+    cb(true)
+  }
 })
 
 wsServer.listen(4001)
-wsSocket.on('connection', (ws) => {
-  console.log("WS connected")
+wsSocket.on('connection', (ws, req) => {
+  console.log("WS connected", req.url)
 
   ws.on('close', (code, reason) => {
     console.log("WS connection closed")

@@ -1,14 +1,25 @@
 Client:
   Hold arrow keys
   Click outside of menu to close
-  Populate Market
+  X Display Commodities at top
+  X Cannot offer same things twice
+  Building progression
+  Tech
+  Health balance
+  Wealth
+  Message Center
+    Notifications
+  Automatic withdrawals in trades
+  Accept trades
+  Time as a commodity
+
 
 Back end:
   Protocal - JSON, client driven
   	client registers with the server, defines call-backs
       Fix score list
-      Post offers
-      Offer list
+      X Post offers
+      X Offer list
   Logging
   Database
 

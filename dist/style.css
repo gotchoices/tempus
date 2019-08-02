@@ -27,7 +27,7 @@ body {
  height: 100%; /* 100% Full-height */
  /*width: 250px; /* 0 width - change this with JavaScript */
  position: fixed; /* Stay in place */
- z-index: 1; /* Stay on top */
+ z-index: 10; /* Stay on top */
  top: 0; /* Stay at the top */
  background-color: #7a7a7a; /* Black*/
  overflow-x: hidden; /* Disable horizontal scroll */
@@ -114,30 +114,29 @@ body {
   stroke: blue;
 }
 
-#tradeButton {
+#marketButton {
   position: absolute;
   right: 1px;
 }
 
-.tradeMenu {
+.market {
  height: 100%; /* 100% Full-height */
  width: 250px; /* 0 width - change this with JavaScript */
  position: fixed; /* Stay in place */
- z-index: 1; /* Stay on top */
+ z-index: 10; /* Stay on top */
  top: 0; /* Stay at the top */
  right: 0;
  background-color: #F0F0F0;
- border: 2px solid black;
  overflow-x: hidden; /* Disable horizontal scroll */
  padding-top: 60px; /* Place content 60px from the top */
  transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
 }
 
-.tradeMenuDivider {
+.marketDivider {
   border: 2px blue solid;
 }
 
-.tradeMenuDivider .top {
+.marketDivider .top {
   position: absolute;
   top: 100px;
 }
@@ -152,12 +151,6 @@ body {
 
 .offer {
   border: 2px solid red;
-}
-
-.tradeDialogBox {
-  stroke: black;
-  stroke-width: .5;
-  fill: white;
 }
 
 input {
@@ -181,4 +174,14 @@ input {
   width: 400px;
   height: 200px;
   background-color: gray;
+}
+
+.commoditiesBox {
+  position: absolute;
+  top: 50px;
+  left: 380px;
+  z-index: 5;
+  width: 500px;
+  height: 100px;
+  border: 2px solid blue;
 }

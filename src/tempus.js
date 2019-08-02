@@ -20,7 +20,7 @@ const Template = `
     <button @click="startTimer"> Start Timer </button>
     <button @click="stopTimer"> Stop Timer </button>
     <button @click="sendPacket"> Send Packet </button>
-    <span class="open" id="tradeButton">
+    <span class="open" id="marketButton" @click="toggleMarket">
       <img class="icon" src="icons/trading.png"/>
     </span>
     <tempus-menu
@@ -29,26 +29,32 @@ const Template = `
       v-on:fetch-scores="fetchScores"
       :config="menuConfig[menuOptions.currMenu]"
       :options="menuOptions"/>
-    <!-- <tempus-market :offers="offers"/>
-    <button @click="addBuilding(0)"> Toggle Farm </button>
-    <button @click="addBuilding(1)"> Toggle Factory </button> -->
+    <tempus-market
+      v-on:toggle-market="toggleMarket"
+      v-on:accept-offer="acceptOffer"
+      v-on:toggle-trade-dialog="toggleTradeDialog"
+      :buildings="buildings"
+      :myOffers="myOffers"
+      :otherOffers="otherOffers"
+      :options="marketOptions"/>
+    <tempus-commodities :buildings="buildings"/>
     <svg class="tempus tempus-board" :viewBox="viewCoords">
       <path fill="none" stroke="blue" :d="svgOutline"> </path>
       <tempus-time x="1" y="1" size="50" @drag="doDrag"/>
       <tempus-score v-if="!showRegisterDialog":score="score" :user="user"/>
       <tempus-building
-      v-for="(building, index) in showingBuildings(buildings)"
-      v-on:increment-percent="incrementPercent"
-      v-on:decrement-percent="decrementPercent"
-      v-on:add-commodity="addCommodity"
-      v-on:toggle-trade-dialog="toggleTradeDialog"
-      :build="building"
-      :key="building.id"
-      :index="index"
+        v-for="(building, index) in showingBuildings"
+        v-on:increment-percent="incrementPercent"
+        v-on:decrement-percent="decrementPercent"
+        v-on:add-commodity="addCommodity"
+        v-on:toggle-trade-dialog="toggleTradeDialog"
+        :build="building"
+        :key="building.index"
+        :index="index"
       />
       <rect class="valueBar" style="fill:#b8cae0;fill-opacity:1;stroke-width:0.26"
-      :width="val.width" :height="val.height"
-      :x="val.x" :y="val.y" :ry="val.ry"
+        :width="val.width" :height="val.height"
+        :x="val.x" :y="val.y" :ry="val.ry"
       />
       <tempus-value
       v-for="(value, index) in values"
@@ -64,7 +70,8 @@ const Template = `
     </svg>
     <tempus-trade-dialog
       :config="tradeDialogConfig"
-      :buildings="buildings"
+      :buildings="showingBuildings"
+      :allBuildings="buildings"
       v-on:toggle-trade-dialog="toggleTradeDialog"
       v-on:post-offer="postOffer"
       />
@@ -80,9 +87,11 @@ import TempusValue from './value.vue'
 import TempusMarket from './market.vue'
 import TempusTradeDialog from './tradeDialog.vue'
 import TempusScore from './score.vue'
+import TempusCommodities from './commodities.vue'
 var BuildingStartPos = 70
 const Timer = require('./timer.js')
 const PacketRegister = require('./packetRegister.js')
+const Uuidv1 = require('uuid/v1');
 
 const Config = {
   el: '#app',
@@ -90,7 +99,7 @@ const Config = {
   components: { 'tempus-time': TempusTime, 'tempus-menu': TempusMenu,
     'tempus-building': TempusBuilding, 'tempus-value': TempusValue,
     'tempus-market': TempusMarket, 'tempus-trade-dialog': TempusTradeDialog,
-    'tempus-score': TempusScore,},
+    'tempus-score': TempusScore, 'tempus-commodities': TempusCommodities,},
   data() { return {
     minX:	0,
     minY:	0,
@@ -104,14 +113,18 @@ const Config = {
     score: 0,
     timeCounter: 0,
     user: "",
+    userId: null,
     registerMessage: "",
     showRegisterDialog: true,
     uniqueId: 0,
+    showingBuildings: [],
     buildings: [
-      {id: 0, title: 'Farm', commodityTitle: 'Food', commodityAmount: 0, commodityMax: 50,
-        rate: 0.1, position: BuildingStartPos, showBuilding: true, percent: 0,},
-      {id: 1, title: 'Factory', commodityTitle: 'Materials', commodityAmount: 0, commodityMax: 40,
-        rate: 0.1, position: BuildingStartPos, showBuilding: false, percent: 0,},
+      {index: 0, title: 'Farm', commodityTitle: 'Food', commodityAmount: 0, commodityReserved: 0,
+        commodityMax: 50, rate: 0.1, position: BuildingStartPos, owned: false, percent: 0,},
+      {index: 1, title: 'Factory', commodityTitle: 'Materials', commodityAmount: 0, commodityReserved: 0,
+        commodityMax: 40, rate: 0.1, position: BuildingStartPos, owned: false, percent: 0,},
+      {index: 2, title: 'Hospital', commodityTitle: 'Medicine', commodityAmount: 0, commodityReserved: 0,
+        commodityMax: 20, rate: 0.1, position: BuildingStartPos, owned: false, percent: 0,},
     ],
     //menu props
     menuConfig: [
@@ -121,12 +134,14 @@ const Config = {
         {name: 'Scores', link: 3, method: 'post-menu',},]},
       {index: 1, code: 'build', title: 'Buildings', prevMenu: null, subMenu:
         [{name: 'Farm', link: 0, method: 'add-building',},
-        {name: 'Factory', link: 1, method: 'add-building',},]},
+        {name: 'Factory', link: 1, method: 'add-building',},
+        {name: 'Hospital', link: 2, method: 'add-building',},]},
       {index: 2, code: 'set', title: 'Settings', prevMenu: null, subMenu: [],},
       {index: 3, code: 'score', title: 'Scores', prevMenu: null, subMenu:
         [{name: 'Update Scores', link: null, method: 'fetch-scores',}],},
     ],
     menuOptions: {width: 0, prevMenu: null, currMenu: 0,},
+    marketOptions: {width: 0, message: ""},
     values: [
       {id:100, title: 'Idleness', timer: null, arrows: true, percent: 100, mltplr: 0.5, scale: 0,},
       {id:101, title: 'Health', timer: 100, arrows: true, percent: 0, mltplr: 1, scale: 0.5,},
@@ -136,9 +151,8 @@ const Config = {
     ],
     valuesConfig: {x: 15, y: 205, ry: 1.8, width: 45, height: 30,},
     val: {x: 10, y: 200, ry: 1.8, width: 255, height: 40,},
-    offers: [
-      {id:0, title: "JonahB", content: "50 Food"},
-    ],
+    myOffers: [],
+    otherOffers: [],
     tradeDialogConfig: {width: 0, showing: false, message: "",},
     endText: {text: 'Game Over', show: false},
     wsHandler: null,
@@ -150,7 +164,7 @@ const Config = {
     viewBottom: function() {return this.minY + this.viewHeight},
     viewAspect: function() {let a = this.fullScreen; return window.innerHeight / window.innerWidth},
     viewCoords: function() {		//Viewport of SVG space
-      console.log('Re-render:', this.minX, this.minY, this.width, this.viewBottom)
+      //console.log('Re-render:', this.minX, this.minY, this.width, this.viewBottom)
       //need to change return statement fourth parameter back to viewBottom
       return [this.minX, this.minY, this.width, this.height].join(' ')
     },
@@ -192,6 +206,16 @@ const Config = {
       }
       //console.log('width: ', this.menuOptions.width)
     },
+    toggleMarket: function() {
+      if (this.marketOptions.width == 0) {
+        this.marketOptions.width = 250
+        this.getOffers()
+      }
+      else {
+        this.marketOptions.width = 0
+        this.marketOptions.message = null
+      }
+    },
     addBuilding: function(index, notUsing) {  //notUsing only neccesary for compatibility with menu.vue
       this.buildings[index].percent = 0
       //console.log(this.buildings[index].showBuilding)
@@ -202,19 +226,26 @@ const Config = {
         var i = this.timeUsers.indexOf(this.buildings[index])
         this.timeUsers.splice(i, 1)
       }
-      this.buildings[index].showBuilding = !this.buildings[index].showBuilding
+      if (this.showingBuildings.indexOf(this.buildings[index]) == -1) {
+        this.showingBuildings.push(this.buildings[index])
+        this.buildings[index].owned = true
+        //console.log("Added ", this.buildings[index].title)
+        //console.log("showingBuildings.length = ", this.showingBuildings.length)
+      }
+      else {
+        var j = this.showingBuildings.indexOf(this.buildings[index])
+        this.showingBuildings.splice(j, 1)
+        this.buildings[index].owned = false
+        //console.log("Removed ", this.buildings[index].title)
+      }
+      //this.buildings[index].showBuilding = !this.buildings[index].showBuilding
       //console.log(this.timeUsers.length)
-    },
-    showingBuildings: function(buildings) {
-      return buildings.filter(function(building) {
-        return building.showBuilding === true
-      })
     },
     incrementPercent: function(id) {
       //find index
       var index = 0
       for (var i = 0; i < this.timeUsers.length; i++) {
-        if (this.timeUsers[i].id == id) {
+        if (this.timeUsers[i].index == id) {
           index = i
           break
         }
@@ -236,7 +267,7 @@ const Config = {
       //find index
       var index = 0
       for (var i = 0; i < this.timeUsers.length; i++) {
-        if (this.timeUsers[i].id == id) {
+        if (this.timeUsers[i].index == id) {
           index = i
           break
         }
@@ -279,12 +310,12 @@ const Config = {
         this.timeUsersIterator = 0
       }
     },
-    addCommodity: function(id, amount) {
-      this.buildings[id].commodityAmount += amount
-      if (this.buildings[id].commodityAmount >= this.buildings[id].commodityMax) {
-        this.buildings[id].commodityAmount = this.buildings[id].commodityMax
+    addCommodity: function(index, amount) {
+      this.buildings[index].commodityAmount += amount
+      if (this.buildings[index].commodityAmount >= this.buildings[index].commodityMax) {
+        this.buildings[index].commodityAmount = this.buildings[index].commodityMax
       }
-      //console.log(this.buildings[id].commodityAmount)
+      //console.log(this.buildings[index].commodityAmount)
     },
     startTimer: function() {
       Timer.start(10)
@@ -318,7 +349,7 @@ const Config = {
       else {
         this.sendPacket({
           type: 'register',
-          id: this.uniqueId++,
+          id: this.user + this.uniqueId++,
           user: user,
           cb: (returnPacket) => {
             this.registerMessage = this.user + ' Registered'
@@ -331,7 +362,7 @@ const Config = {
     fetchScores: function(index, current) {
       this.sendPacket({
         type: 'scores',
-        id: this.uniqueId++,
+        id: this.user + this.uniqueId++,
         user: this.user,
         score: Math.floor(this.score),
         cb: (returnPacket) => {
@@ -343,16 +374,76 @@ const Config = {
         },
       })
     },
-    postOffer: function(toTrade, amount) {
+    postOffer: function(offerType, acceptType, toTrade, amountOut, toAccept, amountIn,) {
+      if (amountOut) {
+        this.buildings[toTrade].commodityAmount -= amountOut
+        this.buildings[toTrade].commodityReserved += amountOut
+      }
+      var tradeTitle = null
+      var acceptTitle = null
+      if (offerType === 'capital') {
+        tradeTitle = this.buildings[toTrade].title
+      }
+      else if (offerType === 'commodity') {
+        tradeTitle = this.buildings[toTrade].commodityTitle
+      }
+      if (acceptType === 'capital') {
+        acceptTitle = this.buildings[toAccept].title
+      }
+      else if (acceptType === 'commodity') {
+        acceptTitle = this.buildings[toAccept].commodityTitle
+      }
       this.sendPacket({
         type: 'offer',
-        id: this.uniqueId++,
+        id: this.user + this.uniqueId++,
         user: this.user,
-        offer: toTrade,
-        amount: amount,
+        offerType: offerType,
+        acceptType: acceptType,
+        tradeTitle: tradeTitle,
+        acceptTitle: acceptTitle,
+        toTrade: toTrade,
+        amountOut: amountOut,
+        toAccept: toAccept,
+        amountIn: amountIn,
         cb: (returnPacket) => {
           console.log("New message: ", returnPacket.message)
           this.tradeDialogConfig.message = returnPacket.message
+        },
+      })
+    },
+    getOffers: function() {
+      this.sendPacket({
+        type: 'getOffers',
+        id: this.user + this.uniqueId++,
+        user: this.user,
+        cb: (returnPacket) => {
+          this.myOffers.splice(0, this.myOffers.length)
+          this.otherOffers.splice(0, this.otherOffers.length)
+          this.myOffers = returnPacket.myOffers
+          this.otherOffers = returnPacket.otherOffers
+        },
+      })
+    },
+    acceptOffer: function(id) {
+      this.sendPacket({
+        type: 'acceptOffer',
+        id: this.user + this.uniqueId++,
+        user: this.user,
+        offerToAccept: id,
+        cb: (returnPacket) => {
+          this.marketOptions.message = 'Offer Accepted'
+          if (returnPacket.offer.offerType === 'capital') {
+            this.buildings[returnPacket.offer.toTrade].owned = true
+          }
+          else if (returnPacket.offer.offerType === 'commodity') {
+            this.buildings[returnPacket.offer.toTrade].commodityAmount += returnPacket.offer.amountOut
+          }
+          if (returnPacket.offer.acceptType === 'capital') {
+            this.buildings[returnPacket.offer.toAccept].owned = false
+          }
+          else if (returnPacket.offer.acceptType === 'commodity') {
+            this.buildings[returnPacket.offer.toAccept].commodityAmount -= returnPacket.offer.amountIn
+          }
         },
       })
     },
@@ -363,7 +454,7 @@ const Config = {
   },
 
   mounted: function () {
-    console.log("Window:", window.innerHeight, window.innerWidth),
+    //console.log("Window:", window.innerHeight, window.innerWidth),
 
     //adds values to timeUsers array
     this.$nextTick(function () {
@@ -386,20 +477,23 @@ const Config = {
     })
 
     let address = window.location.hostname
-      , url = "ws://" + address + ":4001"
+      , myId = localStorage.getItem('myId') || Uuidv1()
+      , url = "ws://" + address + ":4001/" + myId
+    localStorage.setItem('myId', myId)
+    this.userId = myId
     this.wsHandler = new WebSocket(url)
-    console.log("Location: ", window.location.hostname, url)
+    //console.log("Location: ", window.location.hostname, url)
     this.wsHandler.addEventListener('error', event => {
-      console.log("Error connecting")
+      //console.log("Error connecting")
     })
     this.wsHandler.addEventListener('close', event => {
-      console.log("Closed Socket")
+      //console.log("Closed Socket")
     })
     this.wsHandler.addEventListener('open', event => {
-      console.log("Opened Socket")
+      //console.log("Opened Socket")
       this.wsHandler.addEventListener('message', evt => {
         let pkt = JSON.parse(evt.data)
-        console.log("Got Message", pkt)
+        //console.log("Got Message", pkt)
         PacketRegister.recieved(pkt)
       })
     })

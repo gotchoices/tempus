@@ -6,7 +6,7 @@
 
 <template>
 
-  <g class="building" v-show="build.showBuilding">
+  <g class="building" v-show="build.owned">
     <text class="percentage" :x="x + 1" :y="y - 1" fill="black" font-size="5px"> {{build.percent}}% </text>
     <rect style="fill:#94afd1;fill-opacity:1;stroke-width:0.26458332"
     :width="boxWidth"
@@ -15,8 +15,8 @@
     :y="y"
     ry="1.8"
     />
-    <path class="percentArrow" fill="black" stroke="black" stroke-width:1 :d="upArrow" @click="$emit('increment-percent', build.id)"/>
-    <path class="percentArrow" fill="black" stroke="black" stroke-width:1 :d="downArrow" @click="$emit('decrement-percent', build.id)"/>
+    <path class="percentArrow" fill="black" stroke="black" stroke-width:1 :d="upArrow" @click="$emit('increment-percent', build.index)"/>
+    <path class="percentArrow" fill="black" stroke="black" stroke-width:1 :d="downArrow" @click="$emit('decrement-percent', build.index)"/>
     <text :x="x + 2" :y="y + 15" fill="black" font-size="7px"> {{build.title}} </text>
     <path fill="none" stroke="black" :d="connectingLine" />
     <rect style="fill:#94afd1;fill-opacity:1;stroke-width:0.26458332"
@@ -64,9 +64,9 @@ export default {
 
   methods: {
     everyTick() {
-      if (this.build.showBuilding == true) {
+      if (this.build.owned == true) {
         var amountAdded = this.build.percent * this.build.rate
-        this.$emit('add-commodity', this.build.id, amountAdded)
+        this.$emit('add-commodity', this.build.index, amountAdded)
       }
     },
   },

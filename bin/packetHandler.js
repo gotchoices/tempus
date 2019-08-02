@@ -3,11 +3,13 @@
 var db = {
   users: [],
   scores: [],
-  offers: [],
+  offers: [{user: 'testUser', id: 'testUser1', offerType: 'commodity', acceptType: 'commodity',
+    tradeTitle: 'Medicine', acceptTitle: 'Materials', toTrade: 2, amountOut: 20, toAccept: 1, amountIn: 5,},],
 }
 
 module.exports={
   handle: function(packet, cb) {
+    //console.log("in handle")
     switch (packet.type) {
       case 'scores':
         this.handleScores(packet, cb)
@@ -18,13 +20,20 @@ module.exports={
       case 'register':
         this.handleRegister(packet, cb)
         break;
+      case 'getOffers':
+        this.handleGetOffers(packet, cb)
+        break;
+      case 'acceptOffer':
+        this.handleAcceptOffer(packet, cb)
+        break;
       default:
         console.log("Error with sent packet")
     }
   },
 
   handleRegister: function(packet, cb) {
-    db.users.push[packet.user]
+    console.log("returnLink: ", packet.returnLink, "packet: ", packet)
+    db.users.push(packet.user)
     cb({type: 'return', id: packet.id, status: 'good',})
   },
 
@@ -42,9 +51,42 @@ module.exports={
   },
 
   handleOffer: function(packet, cb) {
-    db.offers.push[{user: packet.user, offer: packet.offer, amount: packet.amount,}]
-    cb({type: 'return', id: packet.id, status: 'good', message: 'Offer Posted'})
+    db.offers.push({user: packet.user, id: packet.id, toOriginalUser: cb, offerType: packet.offerType,
+      acceptType: packet.acceptType, tradeTitle: packet.tradeTitle, acceptTitle: packet.acceptTitle,
+      toTrade: packet.toTrade, amountOut: packet.amountOut, toAccept: packet.toAccept, amountIn: packet.amountIn})
+    cb({type: 'offerPosted', id: packet.id, status: 'good', message: 'Offer Posted'})
   },
 
+  handleGetOffers: function(packet, cb) {
+    var i = 0
+    var myOffers = []
+    var otherOffers = []
+    for (i = 0; i < db.offers.length; i++) {
+      if (db.offers[i].user == packet.user) {
+        myOffers.push(db.offers[i])
+      }
+      else {
+        otherOffers.push(db.offers[i])
+      }
+    }
+    cb({type: 'return', id: packet.id, status:  'good', myOffers: myOffers, otherOffers: otherOffers,})
+  },
+
+  handleAcceptOffer: function(packet, cb) {
+    var currOffer = null
+    //sends packet to user who accepted the offer
+    for (var i = 0; i < db.offers.length; i++) {
+      if (db.offers[i].id == packet.offerToAccept) {
+        currOffer = db.offers[i]
+        break
+      }
+    }
+    cb({type: 'return', id: packet.id, status: 'good', offer: currOffer,})
+    //sends packet to user that posted the offer
+    currOffer.type = 'offerAccepted'
+    currOffer.toOriginalUser(currOffer)
+    //delete offer
+    db.offers.splice(db.offers.indexOf(currOffer), 1)
+  },
 
 }
