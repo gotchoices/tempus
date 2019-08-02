@@ -30,7 +30,7 @@ module.exports={
       if (returnPacket.type != 'offerPosted') {
         delete packets[returnPacket.id]
       }
-      console.log("Packet recieved, status: ", returnPacket.status)
+      //console.log("Packet recieved, status: ", returnPacket.status)
     }
     else {
       console.log("Unknown packet recieved, id: ", returnPacket.id)

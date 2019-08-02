@@ -25115,7 +25115,7 @@ module.exports = {
       if (returnPacket.type != 'offerPosted') {
         delete packets[returnPacket.id];
       }
-      console.log("Packet recieved, status: ", returnPacket.status);
+      //console.log("Packet recieved, status: ", returnPacket.status)
     } else {
       console.log("Unknown packet recieved, id: ", returnPacket.id);
     }
@@ -25547,7 +25547,7 @@ const Config = {
       this.endText.show = true;
     },
     sendPacket: function (packet) {
-      console.log("Send Packet", this.wsHandler);
+      //console.log("Send Packet", this.wsHandler)
       PacketRegister.register(packet);
       this.wsHandler.send(JSON.stringify(packet));
     },
@@ -25668,6 +25668,9 @@ const Config = {
       //console.log("clicked on blank", this.dialogToClose)
       if (this.dialogToClose === 'market') {
         this.toggleMarket();
+        if (this.tradeDialogConfig.showing) {
+          this.toggleTradeDialog();
+        }
       } else if (this.dialogToClose === 'menu') {
         this.postMenu(null, 0);
       }
