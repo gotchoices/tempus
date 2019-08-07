@@ -16,7 +16,7 @@
     <!-- Capital -->
     <select v-model="capitalOut">
       <option disabled value=null> Capital </option>
-      <option v-for="building in buildings" :value="building.index">
+      <option v-if="building.built" v-for="building in buildings" :value="building.index">
         {{building.title}}
       </option>
     </select>
@@ -82,6 +82,9 @@ export default {
 
       if (this.capitalOut === null && this.commodityOut === null) {
         this.config.message = 'Empty Selection, please select what you would like to trade'
+      }
+      else if (this.capitalOut != null && this.capitalOut.built == false) {
+        this.config.message = 'Cannot trade an unfinished building'
       }
       else if (this.capitalOut != null && this.commodityOut != null) {
         this.config.message = 'Please only select one thing to trade'

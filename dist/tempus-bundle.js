@@ -132,6 +132,17 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
@@ -144,10 +155,14 @@ const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
       y: 70,
       boxHeight: 30,
       boxWidth: 30,
-      timeCounter: 0
+      timeCounter: 0,
+      currTime: this.build.buildTime
     };
   },
   computed: {
+    bufferPos: function () {
+      return this.y + (this.build.buildTime - this.currTime) * (this.boxHeight / this.build.buildTime);
+    },
     displayAmount: function () {
       return Math.floor(this.build.commodityAmount);
     },
@@ -173,8 +188,17 @@ const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
   methods: {
     everyTick() {
       if (this.build.owned == true) {
-        var amountAdded = this.build.percent * this.build.rate;
-        this.$emit('add-commodity', this.build.index, amountAdded);
+        if (this.build.built == false) {
+          if (this.currTime > 0) {
+            this.currTime -= this.build.percent / 100 * this.build.buildTime / 20;
+          } else {
+            this.currTime = 0;
+            this.build.built = true;
+          }
+        } else {
+          var amountAdded = this.build.percent * this.build.rate;
+          this.$emit('add-commodity', this.build.index, amountAdded);
+        }
       }
     }
   },
@@ -183,6 +207,7 @@ const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
     Timer.register(this.build.title + "_" + this._uid, () => {
       if (this.timeCounter % 50 === 0) {
         //twice every second
+
         this.everyTick();
       }
       this.timeCounter++;
@@ -644,6 +669,8 @@ __webpack_require__.r(__webpack_exports__);
 
       if (this.capitalOut === null && this.commodityOut === null) {
         this.config.message = 'Empty Selection, please select what you would like to trade';
+      } else if (this.capitalOut != null && this.capitalOut.built == false) {
+        this.config.message = 'Cannot trade an unfinished building';
       } else if (this.capitalOut != null && this.commodityOut != null) {
         this.config.message = 'Please only select one thing to trade';
       } else if (this.commodityOut != null && this.amountOut === null) {
@@ -11765,6 +11792,20 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("g", { staticClass: "building" }, [
+    _c("defs", [
+      _c("clipPath", { attrs: { id: "buildingBuffer" } }, [
+        _c("rect", {
+          attrs: {
+            x: _vm.x,
+            y: _vm.y,
+            width: _vm.boxWidth,
+            height: _vm.boxHeight,
+            ry: "1.8"
+          }
+        })
+      ])
+    ]),
+    _vm._v(" "),
     _c(
       "text",
       {
@@ -11786,6 +11827,17 @@ var render = function() {
         x: _vm.x,
         y: _vm.y,
         ry: "1.8"
+      }
+    }),
+    _vm._v(" "),
+    _c("rect", {
+      attrs: {
+        x: _vm.x,
+        y: _vm.bufferPos,
+        width: _vm.boxWidth,
+        height: _vm.boxHeight,
+        fill: "#36567d",
+        "clip-path": "url(#buildingBuffer)"
       }
     }),
     _vm._v(" "),
@@ -11880,7 +11932,7 @@ var render = function() {
             _vm._s(_vm.displayAmount) +
             " / " +
             _vm._s(_vm.build.commodityMax) +
-            " "
+            "\n    "
         )
       ]
     )
@@ -12361,9 +12413,11 @@ var render = function() {
             ]),
             _vm._v(" "),
             _vm._l(_vm.buildings, function(building) {
-              return _c("option", { domProps: { value: building.index } }, [
-                _vm._v("\n        " + _vm._s(building.title) + "\n      ")
-              ])
+              return building.built
+                ? _c("option", { domProps: { value: building.index } }, [
+                    _vm._v("\n        " + _vm._s(building.title) + "\n      ")
+                  ])
+                : _vm._e()
             })
           ],
           2
@@ -12678,7 +12732,7 @@ var render = function() {
           },
           on: {
             click: function($event) {
-              return _vm.$emit("increment-percent", _vm.data.id)
+              return _vm.$emit("increment-percent", _vm.data.index)
             }
           }
         })
@@ -12695,7 +12749,7 @@ var render = function() {
           },
           on: {
             click: function($event) {
-              return _vm.$emit("decrement-percent", _vm.data.id)
+              return _vm.$emit("decrement-percent", _vm.data.index)
             }
           }
         })
@@ -25233,7 +25287,7 @@ const Template = `
     </span>
     <button @click="startTimer"> Start Timer </button>
     <button @click="stopTimer"> Stop Timer </button>
-    <button @click="sendPacket"> Send Packet </button>
+    <button @click="removeBuilding(0)"> Remove Farm </button>
     <span class="open" id="marketButton" @click="toggleMarket">
       <img class="icon" src="icons/trading.png"/>
     </span>
@@ -25331,18 +25385,21 @@ const Config = {
       user: "",
       userId: null,
       registerMessage: "",
-      showRegisterDialog: true,
+      showRegisterDialog: false,
       uniqueId: 0,
       showingBuildings: [],
       buildings: [{ index: 0, title: 'Farm', commodityTitle: 'Food', commodityAmount: 0, commodityReserved: 0,
-        commodityMax: 50, rate: 0.1, position: BuildingStartPos, owned: false, percent: 0 }, { index: 1, title: 'Factory', commodityTitle: 'Materials', commodityAmount: 0, commodityReserved: 0,
-        commodityMax: 40, rate: 0.1, position: BuildingStartPos, owned: false, percent: 0 }, { index: 2, title: 'Hospital', commodityTitle: 'Medicine', commodityAmount: 0, commodityReserved: 0,
-        commodityMax: 20, rate: 0.1, position: BuildingStartPos, owned: false, percent: 0 }],
+        commodityMax: 50, rate: 0.1, position: BuildingStartPos, buildTime: 300, owned: false,
+        built: false, percent: 0 }, { index: 1, title: 'Factory', commodityTitle: 'Materials', commodityAmount: 0, commodityReserved: 0,
+        commodityMax: 40, rate: 0.1, position: BuildingStartPos, buildTime: 300, owned: false,
+        built: false, percent: 0 }, { index: 2, title: 'Hospital', commodityTitle: 'Medicine', commodityAmount: 0, commodityReserved: 0,
+        commodityMax: 20, rate: 0.1, position: BuildingStartPos, buildTime: 300, owned: false,
+        built: false, percent: 0 }],
       //menu props
       menuConfig: [{ index: 0, code: 'main', title: 'Menu', prevMenu: null, subMenu: [{ name: 'Buildings', link: 1, method: 'post-menu' }, { name: 'Settings', link: 2, method: 'post-menu' }, { name: 'Scores', link: 3, method: 'post-menu' }] }, { index: 1, code: 'build', title: 'Buildings', prevMenu: null, subMenu: [{ name: 'Farm', link: 0, method: 'add-building' }, { name: 'Factory', link: 1, method: 'add-building' }, { name: 'Hospital', link: 2, method: 'add-building' }] }, { index: 2, code: 'set', title: 'Settings', prevMenu: null, subMenu: [] }, { index: 3, code: 'score', title: 'Scores', prevMenu: null, subMenu: [{ name: 'Update Scores', link: null, method: 'fetch-scores' }] }],
       menuOptions: { width: 0, prevMenu: null, currMenu: 0 },
       marketOptions: { width: 0, message: "" },
-      values: [{ id: 100, title: 'Idleness', timer: null, arrows: true, percent: 100, mltplr: 0.5, scale: 0 }, { id: 101, title: 'Health', timer: 100, arrows: true, percent: 0, mltplr: 1, scale: 0.5 }, { id: 102, title: 'Comfort', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2 }, { id: 103, title: 'Experiences', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2 }, { id: 104, title: 'Wealth', timer: null, arrows: false, percent: 0, mltplr: 1, scale: 0 }],
+      values: [{ index: 100, title: 'Idleness', timer: null, arrows: true, percent: 100, mltplr: 0.5, scale: 0 }, { index: 101, title: 'Health', timer: 100, arrows: true, percent: 0, mltplr: 1, scale: 0.5 }, { index: 102, title: 'Comfort', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2 }, { index: 103, title: 'Experiences', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2 }, { index: 104, title: 'Wealth', timer: null, arrows: false, percent: 0, mltplr: 1, scale: 0 }],
       valuesConfig: { x: 15, y: 205, ry: 1.8, width: 45, height: 30 },
       val: { x: 10, y: 200, ry: 1.8, width: 255, height: 40 },
       myOffers: [],
@@ -25378,6 +25435,16 @@ const Config = {
     },
     svgOutline: function () {
       return `M ${this.minX}, ${this.minY} H ${this.maxX} V ${this.maxY} H ${this.minX} V ${this.minY} Z`;
+    },
+    numActiveTimeUsers: function () {
+      var num = 0;
+      for (var i = 0; i < this.timeUsers.length; i++) {
+        if (this.timeUsers[i].percent != 0) {
+          num++;
+        }
+      }
+      console.log("numActiveTimeUsers: ", num);
+      return num;
     }
   },
   methods: {
@@ -25431,30 +25498,45 @@ const Config = {
     },
     addBuilding: function (index, notUsing) {
       //notUsing only neccesary for compatibility with menu.vue
-      this.buildings[index].percent = 0;
       //console.log(this.buildings[index].showBuilding)
       if (this.timeUsers.indexOf(this.buildings[index]) == -1) {
+        //checks if already added
         this.timeUsers.push(this.buildings[index]);
-      } else {
-        var i = this.timeUsers.indexOf(this.buildings[index]);
-        this.timeUsers.splice(i, 1);
       }
       if (this.showingBuildings.indexOf(this.buildings[index]) == -1) {
+        //checks if already added
         this.showingBuildings.push(this.buildings[index]);
         this.buildings[index].owned = true;
         //console.log("Added ", this.buildings[index].title)
         //console.log("showingBuildings.length = ", this.showingBuildings.length)
-      } else {
-        var j = this.showingBuildings.indexOf(this.buildings[index]);
-        this.showingBuildings.splice(j, 1);
-        this.buildings[index].owned = false;
-        //console.log("Removed ", this.buildings[index].title)
       }
       //this.buildings[index].showBuilding = !this.buildings[index].showBuilding
       //console.log(this.timeUsers.length)
     },
+    removeBuilding: function (index) {
+      if (this.timeUsers.indexOf(this.buildings[index]) != -1) {
+        //checks if it is actually there
+        var i = this.timeUsers.indexOf(this.buildings[index]);
+        this.timeUsers.splice(i, 1);
+      } else {
+        console.log("Error, attempted to remove a building from timeUsers that was not present");
+      }
+      if (this.showingBuildings.indexOf(this.buildings[index]) != -1) {
+        var j = this.showingBuildings.indexOf(this.buildings[index]);
+        this.showingBuildings.splice(j, 1);
+        this.buildings[index].owned = false;
+        this.buildings[index].built = false;
+        for (var i = 0; i < this.buildings[index].percent; i++) {
+          this.decrementPercent(this.buildings[index].index);
+        }
+        //console.log("Removed ", this.buildings[index].title)
+      } else {
+        console.log("Error, attempted to remove a building from showingBuildings that was not present");
+      }
+    },
     incrementPercent: function (id) {
       //find index
+      //console.log("increment: ", id)
       var index = 0;
       for (var i = 0; i < this.timeUsers.length; i++) {
         if (this.timeUsers[i].index == id) {
@@ -25498,7 +25580,7 @@ const Config = {
     },
     rebalancePercent: function (index, direction) {
       //find available timeUser to modify
-      while (this.timeUsers[this.timeUsersIterator].percent == 0 || index == this.timeUsersIterator) {
+      while (this.numActiveTimeUsers > 2 && this.timeUsersIterator === 0 || this.timeUsers[this.timeUsersIterator].percent == 0 || index == this.timeUsersIterator) {
         this.timeUsersIterator++;
         if (this.timeUsersIterator >= this.timeUsers.length) {
           this.timeUsersIterator = 0;
@@ -25639,12 +25721,13 @@ const Config = {
         cb: returnPacket => {
           this.marketOptions.message = 'Offer Accepted';
           if (returnPacket.offer.offerType === 'capital') {
-            this.buildings[returnPacket.offer.toTrade].owned = true;
+            this.addBuilding(returnPacket.offer.toTrade, null);
+            this.buildings[returnPacket.offer.toTrade].built = true;
           } else if (returnPacket.offer.offerType === 'commodity') {
             this.buildings[returnPacket.offer.toTrade].commodityAmount += returnPacket.offer.amountOut;
           }
           if (returnPacket.offer.acceptType === 'capital') {
-            this.buildings[returnPacket.offer.toAccept].owned = false;
+            this.removeBuilding(returnPacket.offer.toAccept);
           } else if (returnPacket.offer.acceptType === 'commodity') {
             this.buildings[returnPacket.offer.toAccept].commodityAmount -= returnPacket.offer.amountIn;
           }

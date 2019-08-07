@@ -3,8 +3,8 @@
 var db = {
   users: [],
   scores: [],
-  offers: [{user: 'testUser', id: 'testUser1', offerType: 'commodity', acceptType: 'commodity',
-    tradeTitle: 'Medicine', acceptTitle: 'Materials', toTrade: 2, amountOut: 20, toAccept: 1, amountIn: 5,},],
+  offers: [{user: 'testUser', id: 'testUser1', offerType: 'capital', acceptType: 'commodity',
+    tradeTitle: 'Hospital', acceptTitle: 'Materials', toTrade: 2, amountOut: null, toAccept: 1, amountIn: 5,},],
 }
 
 module.exports={

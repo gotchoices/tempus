@@ -26,8 +26,8 @@
     <rect v-if="data.timer != null" class="valueSands" :x="config.x + 50" :y="sandPos" width="45" height="30" fill="#F7E0B7" clip-path="url(#healthClip)" ></rect>
     <text class="valueText" :x="config.x + (index * 50) + 2" y="211" fill="black" font-size="6px"> {{data.title}} </text>
     <text v-if="data.arrows" class="percentage" :x="config.x + config.width*(2/3) + index*(50) + 2" :y="config.y + config.height/2 + 1" fill="black" font-size="5px"> {{data.percent}}% </text>
-    <path v-if="data.arrows" class="percentArrow" fill="black" stroke="black" stroke-width:1 :d="upArrow" @click="$emit('increment-percent', data.id)"/>
-    <path v-if="data.arrows" class="percentArrow" fill="black" stroke="black" stroke-width:1 :d="downArrow" @click="$emit('decrement-percent', data.id)"/>
+    <path v-if="data.arrows" class="percentArrow" fill="black" stroke="black" stroke-width:1 :d="upArrow" @click="$emit('increment-percent', data.index)"/>
+    <path v-if="data.arrows" class="percentArrow" fill="black" stroke="black" stroke-width:1 :d="downArrow" @click="$emit('decrement-percent', data.index)"/>
   </g>
 
 </template>

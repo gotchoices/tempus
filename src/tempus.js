@@ -19,7 +19,7 @@ const Template = `
     </span>
     <button @click="startTimer"> Start Timer </button>
     <button @click="stopTimer"> Stop Timer </button>
-    <button @click="sendPacket"> Send Packet </button>
+    <button @click="removeBuilding(0)"> Remove Farm </button>
     <span class="open" id="marketButton" @click="toggleMarket">
       <img class="icon" src="icons/trading.png"/>
     </span>
@@ -116,16 +116,19 @@ const Config = {
     user: "",
     userId: null,
     registerMessage: "",
-    showRegisterDialog: true,
+    showRegisterDialog: false,
     uniqueId: 0,
     showingBuildings: [],
     buildings: [
       {index: 0, title: 'Farm', commodityTitle: 'Food', commodityAmount: 0, commodityReserved: 0,
-        commodityMax: 50, rate: 0.1, position: BuildingStartPos, owned: false, percent: 0,},
+        commodityMax: 50, rate: 0.1, position: BuildingStartPos, buildTime: 300, owned: false,
+        built: false, percent: 0,},
       {index: 1, title: 'Factory', commodityTitle: 'Materials', commodityAmount: 0, commodityReserved: 0,
-        commodityMax: 40, rate: 0.1, position: BuildingStartPos, owned: false, percent: 0,},
+        commodityMax: 40, rate: 0.1, position: BuildingStartPos, buildTime: 300, owned: false,
+        built: false, percent: 0,},
       {index: 2, title: 'Hospital', commodityTitle: 'Medicine', commodityAmount: 0, commodityReserved: 0,
-        commodityMax: 20, rate: 0.1, position: BuildingStartPos, owned: false, percent: 0,},
+        commodityMax: 20, rate: 0.1, position: BuildingStartPos, buildTime: 300, owned: false,
+        built: false, percent: 0,},
     ],
     //menu props
     menuConfig: [
@@ -144,11 +147,11 @@ const Config = {
     menuOptions: {width: 0, prevMenu: null, currMenu: 0,},
     marketOptions: {width: 0, message: ""},
     values: [
-      {id:100, title: 'Idleness', timer: null, arrows: true, percent: 100, mltplr: 0.5, scale: 0,},
-      {id:101, title: 'Health', timer: 100, arrows: true, percent: 0, mltplr: 1, scale: 0.5,},
-      {id:102, title: 'Comfort', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2,},
-      {id:103, title: 'Experiences', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2,},
-      {id:104, title: 'Wealth', timer: null, arrows: false, percent: 0, mltplr: 1, scale: 0,},
+      {index:100, title: 'Idleness', timer: null, arrows: true, percent: 100, mltplr: 0.5, scale: 0,},
+      {index:101, title: 'Health', timer: 100, arrows: true, percent: 0, mltplr: 1, scale: 0.5,},
+      {index:102, title: 'Comfort', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2,},
+      {index:103, title: 'Experiences', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2,},
+      {index:104, title: 'Wealth', timer: null, arrows: false, percent: 0, mltplr: 1, scale: 0,},
     ],
     valuesConfig: {x: 15, y: 205, ry: 1.8, width: 45, height: 30,},
     val: {x: 10, y: 200, ry: 1.8, width: 255, height: 40,},
@@ -172,6 +175,16 @@ const Config = {
       return [this.minX, this.minY, this.width, this.height].join(' ')
     },
     svgOutline: function() {return `M ${this.minX}, ${this.minY} H ${this.maxX} V ${this.maxY} H ${this.minX} V ${this.minY} Z`},
+    numActiveTimeUsers: function() {
+      var num = 0
+      for (var i = 0; i < this.timeUsers.length; i++) {
+        if (this.timeUsers[i].percent != 0) {
+          num++
+        }
+      }
+      console.log("numActiveTimeUsers: ", num)
+      return num
+    },
   },
   methods: {
     xyz(n) {
@@ -223,32 +236,44 @@ const Config = {
       }
     },
     addBuilding: function(index, notUsing) {  //notUsing only neccesary for compatibility with menu.vue
-      this.buildings[index].percent = 0
       //console.log(this.buildings[index].showBuilding)
-      if (this.timeUsers.indexOf(this.buildings[index]) == -1) {
+      if (this.timeUsers.indexOf(this.buildings[index]) == -1) {  //checks if already added
         this.timeUsers.push(this.buildings[index])
       }
-      else {
-        var i = this.timeUsers.indexOf(this.buildings[index])
-        this.timeUsers.splice(i, 1)
-      }
-      if (this.showingBuildings.indexOf(this.buildings[index]) == -1) {
+      if (this.showingBuildings.indexOf(this.buildings[index]) == -1) { //checks if already added
         this.showingBuildings.push(this.buildings[index])
         this.buildings[index].owned = true
         //console.log("Added ", this.buildings[index].title)
         //console.log("showingBuildings.length = ", this.showingBuildings.length)
       }
-      else {
-        var j = this.showingBuildings.indexOf(this.buildings[index])
-        this.showingBuildings.splice(j, 1)
-        this.buildings[index].owned = false
-        //console.log("Removed ", this.buildings[index].title)
-      }
       //this.buildings[index].showBuilding = !this.buildings[index].showBuilding
       //console.log(this.timeUsers.length)
     },
+    removeBuilding: function(index) {
+      if (this.timeUsers.indexOf(this.buildings[index]) != -1) { //checks if it is actually there
+        var i = this.timeUsers.indexOf(this.buildings[index])
+        this.timeUsers.splice(i, 1)
+      }
+      else {
+        console.log("Error, attempted to remove a building from timeUsers that was not present")
+      }
+      if (this.showingBuildings.indexOf(this.buildings[index]) != -1) {
+        var j = this.showingBuildings.indexOf(this.buildings[index])
+        this.showingBuildings.splice(j, 1)
+        this.buildings[index].owned = false
+        this.buildings[index].built = false
+        for (var i = 0; i < this.buildings[index].percent; i++) {
+          this.decrementPercent(this.buildings[index].index)
+        }
+        //console.log("Removed ", this.buildings[index].title)
+      }
+      else {
+        console.log("Error, attempted to remove a building from showingBuildings that was not present")
+      }
+    },
     incrementPercent: function(id) {
       //find index
+      //console.log("increment: ", id)
       var index = 0
       for (var i = 0; i < this.timeUsers.length; i++) {
         if (this.timeUsers[i].index == id) {
@@ -292,7 +317,8 @@ const Config = {
     },
     rebalancePercent: function(index, direction) {
       //find available timeUser to modify
-      while (this.timeUsers[this.timeUsersIterator].percent == 0 || index == this.timeUsersIterator) {
+      while ((this.numActiveTimeUsers > 2 && this.timeUsersIterator === 0) ||
+            this.timeUsers[this.timeUsersIterator].percent == 0 || index == this.timeUsersIterator) {
         this.timeUsersIterator++
         if (this.timeUsersIterator >= this.timeUsers.length) {
           this.timeUsersIterator = 0
@@ -439,13 +465,14 @@ const Config = {
         cb: (returnPacket) => {
           this.marketOptions.message = 'Offer Accepted'
           if (returnPacket.offer.offerType === 'capital') {
-            this.buildings[returnPacket.offer.toTrade].owned = true
+            this.addBuilding(returnPacket.offer.toTrade, null)
+            this.buildings[returnPacket.offer.toTrade].built = true
           }
           else if (returnPacket.offer.offerType === 'commodity') {
             this.buildings[returnPacket.offer.toTrade].commodityAmount += returnPacket.offer.amountOut
           }
           if (returnPacket.offer.acceptType === 'capital') {
-            this.buildings[returnPacket.offer.toAccept].owned = false
+            this.removeBuilding(returnPacket.offer.toAccept)
           }
           else if (returnPacket.offer.acceptType === 'commodity') {
             this.buildings[returnPacket.offer.toAccept].commodityAmount -= returnPacket.offer.amountIn
