@@ -9,7 +9,7 @@
   <g class="building" >
 
     <defs>  <!--This is for loading buildings -->
-      <clipPath id="buildingBuffer">
+      <clipPath :id="buildingBuffer">
         <rect :x="x" :y="y" :width="boxWidth" :height="boxHeight" ry="1.8" />
       </clipPath>
     </defs>
@@ -23,7 +23,7 @@
     ry="1.8"
     />
     <rect :x="x" :y="bufferPos" :width="boxWidth" :height="boxHeight"
-      fill="#36567d" clip-path="url(#buildingBuffer)" ></rect>
+      fill="#36567d" :clip-path=url ></rect>
     <path class="percentArrow" fill="black" stroke="black" stroke-width:1 :d="upArrow"
       @click="$emit('increment-percent', build.index)"/>
     <path class="percentArrow" fill="black" stroke="black" stroke-width:1 :d="downArrow"
@@ -74,6 +74,8 @@ export default {
     downArrow: function() {return `M ${this.x + this.boxWidth*(2/3)}, ${this.y + this.boxHeight*(4/5)}
      H ${this.x + this.boxWidth*(9/10)}
      L ${this.x + this.boxWidth*(47/60)}, ${this.y + this.boxHeight - this.boxHeight*(1/15)} Z`},
+    buildingBuffer: function() {return "buffer" + this.index},
+    url: function() {return "url(#" + this.buildingBuffer + ")"},
   },
 
   methods: {

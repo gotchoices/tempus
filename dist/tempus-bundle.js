@@ -182,6 +182,12 @@ const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
       return `M ${this.x + this.boxWidth * (2 / 3)}, ${this.y + this.boxHeight * (4 / 5)}
      H ${this.x + this.boxWidth * (9 / 10)}
      L ${this.x + this.boxWidth * (47 / 60)}, ${this.y + this.boxHeight - this.boxHeight * (1 / 15)} Z`;
+    },
+    buildingBuffer: function () {
+      return "buffer" + this.index;
+    },
+    url: function () {
+      return "url(#" + this.buildingBuffer + ")";
     }
   },
 
@@ -11793,7 +11799,7 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c("g", { staticClass: "building" }, [
     _c("defs", [
-      _c("clipPath", { attrs: { id: "buildingBuffer" } }, [
+      _c("clipPath", { attrs: { id: _vm.buildingBuffer } }, [
         _c("rect", {
           attrs: {
             x: _vm.x,
@@ -11837,7 +11843,7 @@ var render = function() {
         width: _vm.boxWidth,
         height: _vm.boxHeight,
         fill: "#36567d",
-        "clip-path": "url(#buildingBuffer)"
+        "clip-path": _vm.url
       }
     }),
     _vm._v(" "),
