@@ -410,6 +410,72 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js?!./src/notify.vue?vue&type=script&lang=js&":
+/*!***********************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib??vue-loader-options!./src/notify.vue?vue&type=script&lang=js& ***!
+  \***********************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var interactjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! interactjs */ "./node_modules/interactjs/dist/interact.js");
+/* harmony import */ var interactjs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(interactjs__WEBPACK_IMPORTED_MODULE_0__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: 'tempus-notify',
+  props: ['config', 'notes'],
+  data() {
+    return {
+      backIcon: 'icons/close.png'
+    };
+  },
+  computed: {},
+
+  methods: {
+    closeNotify: function () {
+      this.$emit('toggle-notify');
+    },
+    clearAll: function () {
+      this.notes.splice(0, this.notes.length);
+    },
+    closeOne: function (index) {
+      this.notes.splice(index, 1);
+    }
+  },
+
+  mounted: function () {}
+});
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js?!./src/score.vue?vue&type=script&lang=js&":
 /*!**********************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib??vue-loader-options!./src/score.vue?vue&type=script&lang=js& ***!
@@ -12172,6 +12238,58 @@ var render = function() {
             },
             [_vm._v("\n      " + _vm._s(item.name) + "\n    ")]
           )
+        })
+      ],
+      2
+    )
+  ])
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./src/notify.vue?vue&type=template&id=d84dc03c&":
+/*!*************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./src/notify.vue?vue&type=template&id=d84dc03c& ***!
+  \*************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _c(
+      "div",
+      {
+        staticClass: "notificationsPanel sidenav rightMenu",
+        style: "width: " + _vm.config.width + "px"
+      },
+      [
+        _c("span", [
+          _c("img", {
+            staticClass: "icon closebtn",
+            attrs: { src: _vm.backIcon },
+            on: { click: _vm.closeNotify }
+          })
+        ]),
+        _vm._v(" "),
+        _c("h2", [_vm._v(" Notifications ")]),
+        _vm._v(" "),
+        _c("button", { on: { click: _vm.clearAll } }, [_vm._v(" Clear All ")]),
+        _vm._v(" "),
+        _vm._l(_vm.notes, function(note, index) {
+          return _c("div", [
+            _c("p", [_vm._v(" " + _vm._s(note.message) + " ")])
+          ])
         })
       ],
       2
@@ -25138,6 +25256,75 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./src/notify.vue":
+/*!************************!*\
+  !*** ./src/notify.vue ***!
+  \************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _notify_vue_vue_type_template_id_d84dc03c___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./notify.vue?vue&type=template&id=d84dc03c& */ "./src/notify.vue?vue&type=template&id=d84dc03c&");
+/* harmony import */ var _notify_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./notify.vue?vue&type=script&lang=js& */ "./src/notify.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _notify_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _notify_vue_vue_type_template_id_d84dc03c___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _notify_vue_vue_type_template_id_d84dc03c___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "src/notify.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./src/notify.vue?vue&type=script&lang=js&":
+/*!*************************************************!*\
+  !*** ./src/notify.vue?vue&type=script&lang=js& ***!
+  \*************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_notify_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../node_modules/babel-loader/lib!../node_modules/vue-loader/lib??vue-loader-options!./notify.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js!./node_modules/vue-loader/lib/index.js?!./src/notify.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_node_modules_vue_loader_lib_index_js_vue_loader_options_notify_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./src/notify.vue?vue&type=template&id=d84dc03c&":
+/*!*******************************************************!*\
+  !*** ./src/notify.vue?vue&type=template&id=d84dc03c& ***!
+  \*******************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_notify_vue_vue_type_template_id_d84dc03c___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../node_modules/vue-loader/lib??vue-loader-options!./notify.vue?vue&type=template&id=d84dc03c& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./src/notify.vue?vue&type=template&id=d84dc03c&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_notify_vue_vue_type_template_id_d84dc03c___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_notify_vue_vue_type_template_id_d84dc03c___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
 /***/ "./src/packetRegister.js":
 /*!*******************************!*\
   !*** ./src/packetRegister.js ***!
@@ -25156,17 +25343,25 @@ module.exports = {
   },
   recieved: function (returnPacket) {
     if (returnPacket.type === 'offerAccepted') {
+      var offered = null;
+      var received = null;
       //handle offerAccepted
       if (returnPacket.offer.offerType === 'capital') {
-        this.buildings[returnPacket.offer.toOffer].owned = false;
+        this.buildings[returnPacket.offer.toTrade].owned = false;
+        offered = "a" + returnPacket.offer.tradeTitle;
       } else if (returnPacket.offer.offerType === 'commodity') {
-        this.buildings[returnPacket.offer.toOffer].commodityAmount -= returnPacket.offer.amountOut;
+        this.buildings[returnPacket.offer.toTrade].commodityAmount -= returnPacket.offer.amountOut;
+        offered = returnPacket.offer.amountOut + " " + returnPacket.offer.tradeTitle;
       }
       if (returnPacket.offer.acceptType === 'capital') {
         this.buildings[returnPacket.offer.toAccept].owned = true;
+        received = "a" + returnPacket.offer.acceptTitle;
       } else if (returnPacket.offer.acceptType === 'commodity') {
         this.buildings[returnPacket.offer.toAccept].commodityAmount += returnPacket.offer.amountIn;
+        received = returnPacket.offer.amountIn + " " + returnPacket.offer.acceptTitle;
       }
+      this.newNotification = true;
+      this.notifications.push({ message: "Your offer for " + offered + " has been accepted. You have received " + received });
       delete packets[returnPacket.id];
     }
     if (returnPacket.id in packets) {
@@ -25272,6 +25467,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _tradeDialog_vue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./tradeDialog.vue */ "./src/tradeDialog.vue");
 /* harmony import */ var _score_vue__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./score.vue */ "./src/score.vue");
 /* harmony import */ var _commodities_vue__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./commodities.vue */ "./src/commodities.vue");
+/* harmony import */ var _notify_vue__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./notify.vue */ "./src/notify.vue");
 //Tempus Valorem
 //Copyright Kyle Bateman; all rights reserved
 // -----------------------------------------------------------------------------
@@ -25294,6 +25490,9 @@ const Template = `
     <button @click="startTimer"> Start Timer </button>
     <button @click="stopTimer"> Stop Timer </button>
     <button @click="removeBuilding(0)"> Remove Farm </button>
+    <span class="open" id="notificationButton" @click="toggleNotifications">
+      <img class="icon" :src="notificationIcon" />
+    </span>
     <span class="open" id="marketButton" @click="toggleMarket">
       <img class="icon" src="icons/trading.png"/>
     </span>
@@ -25349,11 +25548,17 @@ const Template = `
       v-on:toggle-trade-dialog="toggleTradeDialog"
       v-on:post-offer="postOffer"
       />
+    <tempus-notify
+      :config="notifyConfig"
+      :notes="notifications"
+      v-on:toggle-notify="toggleNotifications"
+      />
 
     <h1 class="gameOver" v-if="endText.show"> {{endText.text}} </h1>
     <div class="blankSpace" v-if="screenIsBlank" @click="blankClicked"/>
   </div>
 `;
+
 
 
 
@@ -25374,7 +25579,8 @@ const Config = {
   components: { 'tempus-time': _time_vue__WEBPACK_IMPORTED_MODULE_1__["default"], 'tempus-menu': _menu_vue__WEBPACK_IMPORTED_MODULE_2__["default"],
     'tempus-building': _building_vue__WEBPACK_IMPORTED_MODULE_3__["default"], 'tempus-value': _value_vue__WEBPACK_IMPORTED_MODULE_4__["default"],
     'tempus-market': _market_vue__WEBPACK_IMPORTED_MODULE_5__["default"], 'tempus-trade-dialog': _tradeDialog_vue__WEBPACK_IMPORTED_MODULE_6__["default"],
-    'tempus-score': _score_vue__WEBPACK_IMPORTED_MODULE_7__["default"], 'tempus-commodities': _commodities_vue__WEBPACK_IMPORTED_MODULE_8__["default"] },
+    'tempus-score': _score_vue__WEBPACK_IMPORTED_MODULE_7__["default"], 'tempus-commodities': _commodities_vue__WEBPACK_IMPORTED_MODULE_8__["default"],
+    'tempus-notify': _notify_vue__WEBPACK_IMPORTED_MODULE_9__["default"] },
   data() {
     return {
       minX: 0,
@@ -25391,7 +25597,7 @@ const Config = {
       user: "",
       userId: null,
       registerMessage: "",
-      showRegisterDialog: false,
+      showRegisterDialog: true,
       uniqueId: 0,
       showingBuildings: [],
       buildings: [{ index: 0, title: 'Farm', commodityTitle: 'Food', commodityAmount: 0, commodityReserved: 0,
@@ -25401,7 +25607,6 @@ const Config = {
         built: false, percent: 0 }, { index: 2, title: 'Hospital', commodityTitle: 'Medicine', commodityAmount: 0, commodityReserved: 0,
         commodityMax: 20, rate: 0.1, position: BuildingStartPos, buildTime: 300, owned: false,
         built: false, percent: 0 }],
-      //menu props
       menuConfig: [{ index: 0, code: 'main', title: 'Menu', prevMenu: null, subMenu: [{ name: 'Buildings', link: 1, method: 'post-menu' }, { name: 'Settings', link: 2, method: 'post-menu' }, { name: 'Scores', link: 3, method: 'post-menu' }] }, { index: 1, code: 'build', title: 'Buildings', prevMenu: null, subMenu: [{ name: 'Farm', link: 0, method: 'add-building' }, { name: 'Factory', link: 1, method: 'add-building' }, { name: 'Hospital', link: 2, method: 'add-building' }] }, { index: 2, code: 'set', title: 'Settings', prevMenu: null, subMenu: [] }, { index: 3, code: 'score', title: 'Scores', prevMenu: null, subMenu: [{ name: 'Update Scores', link: null, method: 'fetch-scores' }] }],
       menuOptions: { width: 0, prevMenu: null, currMenu: 0 },
       marketOptions: { width: 0, message: "" },
@@ -25411,10 +25616,13 @@ const Config = {
       myOffers: [],
       otherOffers: [],
       tradeDialogConfig: { width: 0, showing: false, message: "" },
+      notifyConfig: { width: 0, showing: false },
       endText: { text: 'Game Over', show: false },
       wsHandler: null,
       screenIsBlank: false,
-      dialogToClose: null
+      dialogToClose: null,
+      newNotification: false,
+      notifications: []
     };
   },
   computed: {
@@ -25451,6 +25659,13 @@ const Config = {
       }
       console.log("numActiveTimeUsers: ", num);
       return num;
+    },
+    notificationIcon: function () {
+      if (this.newNotification) {
+        return "icons/newNotification.png";
+      } else {
+        return "icons/notification.png";
+      }
     }
   },
   methods: {
@@ -25631,6 +25846,16 @@ const Config = {
       this.tradeDialogConfig.showing = !this.tradeDialogConfig.showing;
       //console.log("width: ", this.tradeDialogConfig.width)
     },
+    toggleNotifications: function () {
+      this.blankScreen('notify');
+      if (this.notifyConfig.showing == true) {
+        this.notifyConfig.width = 0;
+      } else {
+        this.notifyConfig.width = 250;
+        this.newNotification = false;
+      }
+      this.notifyConfig.showing = !this.notifyConfig.showing;
+    },
     gameOver: function () {
       this.endText.show = true;
     },
@@ -25643,6 +25868,8 @@ const Config = {
       if (user == "") {
         alert("Invalid Username");
       } else {
+        this.newNotification = true;
+        this.notifications.push({ message: "You have been registered under the username " + user });
         this.sendPacket({
           type: 'register',
           id: this.user + this.uniqueId++,
@@ -25746,11 +25973,7 @@ const Config = {
         this.dialogToClose = null;
       } else {
         this.screenIsBlank = true;
-        if (toClose === 'market') {
-          this.dialogToClose = 'market';
-        } else if (toClose === 'menu') {
-          this.dialogToClose = 'menu';
-        }
+        this.dialogToClose = toClose;
       }
     },
     blankClicked: function () {
@@ -25762,6 +25985,8 @@ const Config = {
         }
       } else if (this.dialogToClose === 'menu') {
         this.postMenu(null, 0);
+      } else if (this.dialogToClose === 'notify') {
+        this.toggleNotifications();
       }
     }
   },

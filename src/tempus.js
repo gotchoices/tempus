@@ -20,6 +20,9 @@ const Template = `
     <button @click="startTimer"> Start Timer </button>
     <button @click="stopTimer"> Stop Timer </button>
     <button @click="removeBuilding(0)"> Remove Farm </button>
+    <span class="open" id="notificationButton" @click="toggleNotifications">
+      <img class="icon" :src="notificationIcon" />
+    </span>
     <span class="open" id="marketButton" @click="toggleMarket">
       <img class="icon" src="icons/trading.png"/>
     </span>
@@ -75,6 +78,11 @@ const Template = `
       v-on:toggle-trade-dialog="toggleTradeDialog"
       v-on:post-offer="postOffer"
       />
+    <tempus-notify
+      :config="notifyConfig"
+      :notes="notifications"
+      v-on:toggle-notify="toggleNotifications"
+      />
 
     <h1 class="gameOver" v-if="endText.show"> {{endText.text}} </h1>
     <div class="blankSpace" v-if="screenIsBlank" @click="blankClicked"/>
@@ -89,6 +97,7 @@ import TempusMarket from './market.vue'
 import TempusTradeDialog from './tradeDialog.vue'
 import TempusScore from './score.vue'
 import TempusCommodities from './commodities.vue'
+import TempusNotify from './notify.vue'
 var BuildingStartPos = 70
 const Timer = require('./timer.js')
 const PacketRegister = require('./packetRegister.js')
@@ -100,7 +109,8 @@ const Config = {
   components: { 'tempus-time': TempusTime, 'tempus-menu': TempusMenu,
     'tempus-building': TempusBuilding, 'tempus-value': TempusValue,
     'tempus-market': TempusMarket, 'tempus-trade-dialog': TempusTradeDialog,
-    'tempus-score': TempusScore, 'tempus-commodities': TempusCommodities,},
+    'tempus-score': TempusScore, 'tempus-commodities': TempusCommodities,
+    'tempus-notify': TempusNotify,},
   data() { return {
     minX:	0,
     minY:	0,
@@ -116,7 +126,7 @@ const Config = {
     user: "",
     userId: null,
     registerMessage: "",
-    showRegisterDialog: false,
+    showRegisterDialog: true,
     uniqueId: 0,
     showingBuildings: [],
     buildings: [
@@ -130,7 +140,6 @@ const Config = {
         commodityMax: 20, rate: 0.1, position: BuildingStartPos, buildTime: 300, owned: false,
         built: false, percent: 0,},
     ],
-    //menu props
     menuConfig: [
       {index: 0, code: 'main', title: 'Menu', prevMenu: null, subMenu:
         [{name: 'Buildings', link: 1, method: 'post-menu',},
@@ -158,10 +167,13 @@ const Config = {
     myOffers: [],
     otherOffers: [],
     tradeDialogConfig: {width: 0, showing: false, message: "",},
+    notifyConfig: {width: 0, showing: false,},
     endText: {text: 'Game Over', show: false},
     wsHandler: null,
     screenIsBlank: false,
     dialogToClose: null,
+    newNotification: false,
+    notifications: [],
   }},
   computed: {
     width: function() {return this.maxX - this.minX},
@@ -184,6 +196,14 @@ const Config = {
       }
       console.log("numActiveTimeUsers: ", num)
       return num
+    },
+    notificationIcon: function() {
+      if (this.newNotification) {
+        return "icons/newNotification.png"
+      }
+      else {
+        return "icons/notification.png"
+      }
     },
   },
   methods: {
@@ -366,6 +386,17 @@ const Config = {
       this.tradeDialogConfig.showing = !this.tradeDialogConfig.showing
       //console.log("width: ", this.tradeDialogConfig.width)
     },
+    toggleNotifications: function() {
+      this.blankScreen('notify')
+      if (this.notifyConfig.showing == true) {
+        this.notifyConfig.width = 0
+      }
+      else {
+        this.notifyConfig.width = 250
+        this.newNotification = false
+      }
+      this.notifyConfig.showing = !this.notifyConfig.showing
+    },
     gameOver: function() {
       this.endText.show = true
     },
@@ -379,6 +410,8 @@ const Config = {
         alert("Invalid Username")
       }
       else {
+        this.newNotification = true
+        this.notifications.push({message: "You have been registered under the username " + user})
         this.sendPacket({
           type: 'register',
           id: this.user + this.uniqueId++,
@@ -487,12 +520,7 @@ const Config = {
       }
       else {
         this.screenIsBlank = true
-        if (toClose === 'market') {
-          this.dialogToClose = 'market'
-        }
-        else if (toClose === 'menu') {
-          this.dialogToClose = 'menu'
-        }
+        this.dialogToClose = toClose
       }
     },
     blankClicked: function() {
@@ -505,6 +533,9 @@ const Config = {
       }
       else if (this.dialogToClose === 'menu') {
         this.postMenu(null, 0)
+      }
+      else if (this.dialogToClose === 'notify') {
+        this.toggleNotifications()
       }
     },
   },

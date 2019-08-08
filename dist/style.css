@@ -196,3 +196,8 @@ input {
   background-color: gray;
   z-index: 5;
 }
+
+#notificationButton {
+  position: absolute;
+  right: 30px;
+}

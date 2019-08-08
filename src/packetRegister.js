@@ -9,19 +9,27 @@ module.exports={
   },
   recieved: function(returnPacket) {
     if (returnPacket.type === 'offerAccepted') {
+      var offered = null
+      var received = null
       //handle offerAccepted
       if (returnPacket.offer.offerType === 'capital') {
-        this.buildings[returnPacket.offer.toOffer].owned = false
+        this.buildings[returnPacket.offer.toTrade].owned = false
+        offered = "a" + returnPacket.offer.tradeTitle
       }
       else if (returnPacket.offer.offerType === 'commodity') {
-        this.buildings[returnPacket.offer.toOffer].commodityAmount -= returnPacket.offer.amountOut
+        this.buildings[returnPacket.offer.toTrade].commodityAmount -= returnPacket.offer.amountOut
+        offered = returnPacket.offer.amountOut + " " + returnPacket.offer.tradeTitle
       }
       if (returnPacket.offer.acceptType === 'capital') {
         this.buildings[returnPacket.offer.toAccept].owned = true
+        received = "a" + returnPacket.offer.acceptTitle
       }
       else if (returnPacket.offer.acceptType === 'commodity') {
         this.buildings[returnPacket.offer.toAccept].commodityAmount += returnPacket.offer.amountIn
+        received = returnPacket.offer.amountIn + " " + returnPacket.offer.acceptTitle
       }
+      this.newNotification = true
+      this.notifications.push({message: "Your offer for " + offered + " has been accepted. You have received " + received})
       delete packets[returnPacket.id]
     }
     if (returnPacket.id in packets) {
