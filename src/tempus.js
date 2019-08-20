@@ -20,6 +20,7 @@ const Template = `
     <button @click="startTimer"> Start Timer </button>
     <button @click="stopTimer"> Stop Timer </button>
     <button @click="removeBuilding(0)"> Remove Farm </button>
+    <button @click="changeMaxTime(-20, 5)"> Change Time </button>
     <span class="open" id="notificationButton" @click="toggleNotifications">
       <img class="icon" :src="notificationIcon" />
     </span>
@@ -40,7 +41,7 @@ const Template = `
       :myOffers="myOffers"
       :otherOffers="otherOffers"
       :options="marketOptions"/>
-    <tempus-commodities :buildings="buildings"/>
+    <tempus-commodities :buildings="buildings" :maxTime="maxTime"/>
     <svg class="tempus tempus-board" :viewBox="viewCoords">
       <path fill="none" stroke="blue" :d="svgOutline"> </path>
       <tempus-time x="1" y="1" size="50" @drag="doDrag"/>
@@ -75,6 +76,7 @@ const Template = `
       :config="tradeDialogConfig"
       :buildings="showingBuildings"
       :allBuildings="buildings"
+      :maxTime="maxTime"
       v-on:toggle-trade-dialog="toggleTradeDialog"
       v-on:post-offer="postOffer"
       />
@@ -174,6 +176,9 @@ const Config = {
     dialogToClose: null,
     newNotification: false,
     notifications: [],
+    maxTime: 100,
+    timeOut: {index: 201, title: 'Time Out', percent: 0},
+    timers: [], //{amount, cb}
   }},
   computed: {
     width: function() {return this.maxX - this.minX},
@@ -189,7 +194,7 @@ const Config = {
     svgOutline: function() {return `M ${this.minX}, ${this.minY} H ${this.maxX} V ${this.maxY} H ${this.minX} V ${this.minY} Z`},
     numActiveTimeUsers: function() {
       var num = 0
-      for (var i = 0; i < this.timeUsers.length; i++) {
+      for (var i = 1; i < this.timeUsers.length; i++) { //start at 1 to avoid timeOut
         if (this.timeUsers[i].percent != 0) {
           num++
         }
@@ -301,14 +306,14 @@ const Config = {
           break
         }
       }
-      //if percent already at 100
-      if (this.timeUsers[index].percent == 100) {
+      //if percent already at max allowed
+      if (this.timeUsers[index].percent >= this.maxTime && index != 0) {
         return
       }
       //if idleness has greater than 0 and not incrementing idleness, take from idleness
-      if (this.timeUsers[0].percent != 0 && index != 0) {
+      if (this.timeUsers[1].percent != 0 && index != 1) {
         this.timeUsers[index].percent++
-        this.timeUsers[0].percent--
+        this.timeUsers[1].percent--
         return
       }
       //if iterator needed
@@ -328,17 +333,18 @@ const Config = {
         return
       }
       //if idleness is 100, add to Health
-      if (this.timeUsers[0].percent == 100 && index == 0) {
-        this.timeUsers[0].percent--
-        this.timeUsers[1].percent++
+      if (this.timeUsers[1].percent >= this.maxTime && index == 1) {
+        this.timeUsers[1].percent--
+        this.timeUsers[2].percent++
         return
       }
       this.rebalancePercent(index, 'down')
     },
     rebalancePercent: function(index, direction) {
       //find available timeUser to modify
-      while ((this.numActiveTimeUsers > 2 && this.timeUsersIterator === 0) ||
-            this.timeUsers[this.timeUsersIterator].percent == 0 || index == this.timeUsersIterator) {
+      while ((this.numActiveTimeUsers > 2 && this.timeUsersIterator === 1) ||
+            this.timeUsers[this.timeUsersIterator].percent == 0 || index == this.timeUsersIterator ||
+            this.timeUsersIterator <= 0) {
         this.timeUsersIterator++
         if (this.timeUsersIterator >= this.timeUsers.length) {
           this.timeUsersIterator = 0
@@ -360,6 +366,21 @@ const Config = {
       this.timeUsersIterator++
       if (this.timeUsersIterator >= this.timeUsers.length) {
         this.timeUsersIterator = 0
+      }
+    },
+    changeMaxTime: function(amount, length) {
+      if (amount < 0) {
+        this.maxTime += amount
+        for (var i = 0; i < Math.abs(amount); i++) {
+          this.incrementPercent(this.timeOut.index)
+        }
+      }
+      else {
+        this.maxTime += amount
+        this.values[0].percent += amount
+        for (var i = 0; i < amount; i++) {
+          this.decrementPercent(this.values[0].index)
+        }
       }
     },
     addCommodity: function(index, amount) {
@@ -439,20 +460,26 @@ const Config = {
         },
       })
     },
-    postOffer: function(offerType, acceptType, toTrade, amountOut, toAccept, amountIn,) {
-      if (amountOut) {
+    postOffer: function(offerType, acceptType, toTrade, amountOut, lengthOut, toAccept, amountIn, lengthIn,) {
+      if (amountOut && !lengthOut) {  //trading commodities
         this.buildings[toTrade].commodityAmount -= amountOut
         this.buildings[toTrade].commodityReserved += amountOut
       }
       var tradeTitle = null
       var acceptTitle = null
-      if (offerType === 'capital') {
+      if (offerType === 'time') {
+        tradeTitle = 'Time'
+      }
+      else if (offerType === 'capital') {
         tradeTitle = this.buildings[toTrade].title
       }
       else if (offerType === 'commodity') {
         tradeTitle = this.buildings[toTrade].commodityTitle
       }
-      if (acceptType === 'capital') {
+      if (acceptType === 'time') {
+        acceptTitle = 'Time'
+      }
+      else if (acceptType === 'capital') {
         acceptTitle = this.buildings[toAccept].title
       }
       else if (acceptType === 'commodity') {
@@ -468,8 +495,10 @@ const Config = {
         acceptTitle: acceptTitle,
         toTrade: toTrade,
         amountOut: amountOut,
+        lengthOut: lengthOut,
         toAccept: toAccept,
         amountIn: amountIn,
+        lengthIn: lengthIn,
         cb: (returnPacket) => {
           console.log("New message: ", returnPacket.message)
           this.tradeDialogConfig.message = returnPacket.message
@@ -549,8 +578,8 @@ const Config = {
 
     //adds values to timeUsers array
     this.$nextTick(function () {
-      var i = 0
-      for (i = 0; i < this.values.length; i++) {
+      this.timeUsers.push(this.timeOut)
+      for (var i = 0; i < this.values.length; i++) {
         if (this.values[i].arrows == true) {
           this.timeUsers.push(this.values[i])
         }
@@ -561,6 +590,14 @@ const Config = {
           if (this.timeCounter >= 30000) { //30000 = five minutes
             this.stopTimer()
             this.gameOver()
+          }
+          //counts trading timers
+          for (var i = 0; i < this.timers.length; i++) {
+            this.timers[i].amount--
+            if (this.timers[i].amount <= 0) { //timer has finished counting
+              this.timers[i].cb()
+              this.timers.splice(i, 1)
+            }
           }
         }
         this.timeCounter++

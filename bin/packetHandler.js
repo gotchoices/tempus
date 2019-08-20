@@ -4,7 +4,8 @@ var db = {
   users: [],
   scores: [],
   offers: [{user: 'testUser', id: 'testUser1', offerType: 'capital', acceptType: 'commodity',
-    tradeTitle: 'Hospital', acceptTitle: 'Materials', toTrade: 2, amountOut: null, toAccept: 1, amountIn: 5,},],
+    tradeTitle: 'Hospital', acceptTitle: 'Materials', toTrade: 2, amountOut: null, lengthOut: null,
+    toAccept: 1, amountIn: 5, lengthIn: null,},],
 }
 
 module.exports={
@@ -52,7 +53,8 @@ module.exports={
   handleOffer: function(packet, cb) {
     db.offers.push({user: packet.user, id: packet.id, toOriginalUser: cb, offerType: packet.offerType,
       acceptType: packet.acceptType, tradeTitle: packet.tradeTitle, acceptTitle: packet.acceptTitle,
-      toTrade: packet.toTrade, amountOut: packet.amountOut, toAccept: packet.toAccept, amountIn: packet.amountIn})
+      toTrade: packet.toTrade, amountOut: packet.amountOut, lengthOut: packet.lengthOut,
+      toAccept: packet.toAccept, amountIn: packet.amountIn, lengthIn: packet.lengthIn,})
     cb({type: 'offerPosted', id: packet.id, status: 'good', message: 'Offer Posted'})
   },
 

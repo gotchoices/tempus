@@ -7,15 +7,22 @@ Client:
   Tech
   Health balance
   Wealth
-  Message Center
-    Notifications
+  X Message Center
+    X Notifications
   X Automatic withdrawals in trades
   X Accept trades
-  Time as a commodity
-
+  X Time as a commodity
+    X Flexible upper limit
+    X decrement when necessary
+    X include in trade dialog
+    X error checking
+  Visible timer
+  Remove offers
+  Scores
+    View Scores
 
 Back end:
-  Protocal - JSON, client driven
+  Protocol - JSON, client driven
   	client registers with the server, defines call-backs
       Fix score list
       X Post offers
@@ -23,10 +30,14 @@ Back end:
   Logging
   Database
 
-JSON protocal
+JSON protocol
   Score
     {type: 'score', id: uniqueId, user: userId, score: totalScore}
   Offer
     {type: offer, id: uniqueId, user: userId, item: itemToTrade, quantity: amountOffered, callback: function}
   Register
     {type: register, id: uniqueId, user: userId, cb: displays_"Registered"}
+
+Notes:
+npm run dev-build
+npm run server

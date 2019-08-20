@@ -182,7 +182,7 @@ input {
   left: 380px;
   z-index: 5;
   width: 500px;
-  height: 100px;
+  height: 150px;
   border: 2px solid blue;
 }
 
@@ -200,4 +200,14 @@ input {
 #notificationButton {
   position: absolute;
   right: 30px;
+}
+
+.radiobutton {
+  position: absolute;
+  right: 110px;
+}
+
+.radiotag {
+  position: absolute;
+  left: 20px;
 }

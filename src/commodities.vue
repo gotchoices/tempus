@@ -4,6 +4,7 @@
 
 <template>
   <div class="commoditiesBox">
+    <p> Available Time: {{maxTime}} </p>
     <span v-for="commodity in buildings">
       <p>{{commodity.commodityTitle}}: {{Math.floor(commodity.commodityAmount)}} ({{commodity.commodityReserved}})</p>
     </span>
@@ -17,7 +18,7 @@ const Timer = require('./timer.js')
 
 export default {
   name: 'tempus-commodities',
-  props: ['buildings'],
+  props: ['buildings', 'maxTime',],
   data() { return {
   }},
 

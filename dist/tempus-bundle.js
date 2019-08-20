@@ -246,6 +246,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 
 
@@ -253,7 +254,7 @@ const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'tempus-commodities',
-  props: ['buildings'],
+  props: ['buildings', 'maxTime'],
   data() {
     return {};
   },
@@ -716,67 +717,141 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'tempus-trade-dialog',
-  props: ['config', 'buildings', 'allBuildings'],
+  props: ['config', 'buildings', 'allBuildings', 'maxTime'],
   data() {
     return {
       backIcon: 'icons/close.png',
       capitalOut: null,
       commodityOut: null,
       amountOut: null,
-      showAmountOut: false,
       capitalIn: null,
       commodityIn: null,
       amountIn: null,
-      showAmountIn: false
+      lengthIn: null,
+      lengthOut: null,
+      timeOut: null,
+      timeIn: null
     };
   },
   computed: {},
   methods: {
     postOffer: function () {
-      //console.log("type: ", typeof this.amount)
-
-      if (this.capitalOut === null && this.commodityOut === null) {
+      //General Tests
+      if (this.capitalOut === null && this.commodityOut === null && this.timeOut === null) {
         this.config.message = 'Empty Selection, please select what you would like to trade';
-      } else if (this.capitalOut != null && this.capitalOut.built == false) {
-        this.config.message = 'Cannot trade an unfinished building';
-      } else if (this.capitalOut != null && this.commodityOut != null) {
-        this.config.message = 'Please only select one thing to trade';
-      } else if (this.commodityOut != null && this.amountOut === null) {
-        this.config.message = 'Please enter an amount to trade';
-      } else if (this.commodityOut != null && typeof this.amountOut === 'string') {
-        this.config.message = 'Invalid trading amount, please input a number';
-        //console.log("Invalid type")
-      } else if (this.capitalOut != null && this.amountOut != null) {
-        this.amountOut = null;
-      } else if (this.capitalIn === null && this.commodityIn === null && this.amountIn === null) {
+      } else if (this.capitalIn === null && this.commodityIn === null && this.timeIn === null) {
         this.config.message = 'Empty Selection, please select what you will accept';
-      } else if (this.capitalIn != null && this.commodityIn != null) {
-        this.config.message = 'Please only select one thing to accept';
-      } else if (this.commodityIn != null && this.amountIn === null) {
-        this.config.message = 'Please enter an amount to accept';
-      } else if (this.commodityIn != null && typeof this.amountIn === 'string') {
-        this.config.message = 'Invalid accepting amount, please input a number';
-      } else if (this.capitalOut != null) {
-        if (this.capitalIn === null) {
-          this.$emit('post-offer', 'capital', 'commodity', this.capitalOut, null, this.commodityIn, this.amountIn);
-        } else {
-          this.$emit('post-offer', 'capital', 'capital', this.capitalOut, null, this.capitalIn, null);
-        }
-      } else if (this.commodityOut != null) {
-        if (this.allBuildings[this.commodityOut].commodityAmount < this.amountOut) {
-          this.config.message = 'Amount is greater than amount owned, please enter a lower amount';
-        } else {
-          if (this.capitalIn === null) {
-            this.$emit('post-offer', 'commodity', 'commodity', this.commodityOut, this.amountOut, this.commodityIn, this.amountIn);
-          } else {
-            this.$emit('post-offer', 'commodity', 'capital', this.commodityOut, this.amountOut, this.capitalIn, null);
-          }
-        }
       }
+
+      //timeOut
+      else if (this.timeOut && this.amountOut === null) {
+          this.config.message = 'Please input the percentage of time to trade';
+        } else if (this.timeOut && this.amountOut > this.maxTime) {
+          this.config.message = 'Not enough time available, please input a lower percentage';
+        } else if (this.timeOut && this.lengthOut === null) {
+          this.config.message = 'Please select length of time to trade';
+        } else if (this.timeOut != null && typeof this.amountOut === 'string') {
+          this.config.message = 'Invalid trading amount, please input a number';
+          //console.log("Invalid type")
+        } else if (this.timeOut != null && typeof this.lengthOut === 'string') {
+          this.config.message = 'Invalid trading length, please input a number';
+          //console.log("Invalid type")
+        }
+
+        //commodityOut
+        else if (this.commodityOut != null && this.amountOut === null) {
+            this.config.message = 'Please enter an amount to trade';
+          } else if (this.commodityOut != null && typeof this.amountOut === 'string') {
+            this.config.message = 'Invalid trading amount, please input a number';
+            //console.log("Invalid type")
+          }
+
+          //timeIn
+          else if (this.timeIn && this.amountIn === null) {
+              this.config.message = 'Please input the percentage of time to accept';
+            } else if (this.timeIn && this.lengthIn === null) {
+              this.config.message = 'Please select length of time to accept';
+            } else if (this.timeIn != null && typeof this.amountIn === 'string') {
+              this.config.message = 'Invalid accepting amount, please input a number';
+              //console.log("Invalid type")
+            } else if (this.timeIn != null && typeof this.lengthIn === 'string') {
+              this.config.message = 'Invalid accepting length, please input a number';
+              //console.log("Invalid type")
+            }
+
+            //commodityIn
+            else if (this.commodityIn != null && this.amountIn === null) {
+                this.config.message = 'Please enter an amount to accept';
+              } else if (this.commodityIn != null && typeof this.amountIn === 'string') {
+                this.config.message = 'Invalid accepting amount, please input a number';
+              }
+
+              //Bugs
+              else if (this.capitalOut != null && this.capitalOut.built == false) {
+                  this.config.message = 'Cannot trade an unfinished building (bug)';
+                } else if (this.capitalOut != null && this.commodityOut != null) {
+                  this.config.message = 'Please only select one thing to trade (bug)';
+                } else if (this.capitalOut != null && this.amountOut != null) {
+                  this.amountOut = null;
+                  this.config.message = 'Capital and amount selected (bug)';
+                } else if (this.capitalIn != null && this.commodityIn != null) {
+                  this.config.message = 'Please only select one thing to accept (bug)';
+                }
+                //Emitting offers
+                //time
+                else if (this.timeOut != null) {
+                    if (this.capitalIn != null) {
+                      this.$emit('post-offer', 'time', 'capital', this.timeOut, this.amountOut, this.lengthOut, this.capitalIn, null, null);
+                    } else if (this.timeIn != null) {
+                      this.$emit('post-offer', 'time', 'time', this.timeOut, this.amountOut, this.lengthOut, this.timeIn, this.amountIn, this.lengthIn);
+                    } else {
+                      this.$emit('post-offer', 'time', 'commodity', this.timeOut, this.amountOut, this.lengthOut, this.commodityIn, this.amountIn, null);
+                    }
+                  }
+                  //capital
+                  else if (this.capitalOut != null) {
+                      if (this.capitalIn != null) {
+                        this.$emit('post-offer', 'capital', 'capital', this.capitalOut, null, null, this.capitalIn, null, null);
+                      } else if (this.timeIn != null) {
+                        this.$emit('post-offer', 'capital', 'time', this.capitalOut, null, null, this.timeIn, this.amountIn, this.lengthIn);
+                      } else {
+                        this.$emit('post-offer', 'capital', 'commodity', this.capitalOut, null, null, this.commodityIn, this.amountIn, null);
+                      }
+                    }
+                    //commodity
+                    else if (this.commodityOut != null) {
+                        if (this.allBuildings[this.commodityOut].commodityAmount < this.amountOut) {
+                          this.config.message = 'Amount is greater than amount owned, please enter a lower amount';
+                        } else {
+                          if (this.capitalIn != null) {
+                            this.$emit('post-offer', 'commodity', 'capital', this.commodityOut, this.amountOut, null, this.capitalIn, null, null);
+                          } else if (this.timeIn != null) {
+                            this.$emit('post-offer', 'commodity', 'time', this.commodityOut, this.amountOut, null, this.timeIn, this.amountIn, this.lengthIn);
+                          } else {
+                            this.$emit('post-offer', 'commodity', 'commodity', this.commodityOut, this.amountOut, null, this.commodityIn, this.amountIn, null);
+                          }
+                        }
+                      }
+      this.clear();
     },
     clear: function () {
       this.commodityOut = null;
@@ -785,6 +860,10 @@ __webpack_require__.r(__webpack_exports__);
       this.commodityIn = null;
       this.capitalIn = null;
       this.amountIn = null;
+      this.timeOut = null;
+      this.timeIn = null;
+      this.lengthOut = null;
+      this.lengthIn = null;
       this.config.message = "";
     },
     closeDialog: function () {
@@ -12035,21 +12114,25 @@ var render = function() {
   return _c(
     "div",
     { staticClass: "commoditiesBox" },
-    _vm._l(_vm.buildings, function(commodity) {
-      return _c("span", [
-        _c("p", [
-          _vm._v(
-            _vm._s(commodity.commodityTitle) +
-              ": " +
-              _vm._s(Math.floor(commodity.commodityAmount)) +
-              " (" +
-              _vm._s(commodity.commodityReserved) +
-              ")"
-          )
+    [
+      _c("p", [_vm._v(" Available Time: " + _vm._s(_vm.maxTime) + " ")]),
+      _vm._v(" "),
+      _vm._l(_vm.buildings, function(commodity) {
+        return _c("span", [
+          _c("p", [
+            _vm._v(
+              _vm._s(commodity.commodityTitle) +
+                ": " +
+                _vm._s(Math.floor(commodity.commodityAmount)) +
+                " (" +
+                _vm._s(commodity.commodityReserved) +
+                ")"
+            )
+          ])
         ])
-      ])
-    }),
-    0
+      })
+    ],
+    2
   )
 }
 var staticRenderFns = []
@@ -12504,95 +12587,134 @@ var render = function() {
         _vm._v(" "),
         _c("p", [_vm._v("Offering:")]),
         _vm._v(" "),
-        _c(
-          "select",
-          {
-            directives: [
-              {
-                name: "model",
-                rawName: "v-model",
-                value: _vm.capitalOut,
-                expression: "capitalOut"
+        _vm.capitalOut === null && _vm.commodityOut === null
+          ? _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.timeOut,
+                  expression: "timeOut"
+                }
+              ],
+              staticClass: "radiobutton",
+              attrs: { type: "radio", id: "timeOut", value: "Time" },
+              domProps: { checked: _vm._q(_vm.timeOut, "Time") },
+              on: {
+                change: function($event) {
+                  _vm.timeOut = "Time"
+                }
               }
-            ],
-            on: {
-              change: function($event) {
-                var $$selectedVal = Array.prototype.filter
-                  .call($event.target.options, function(o) {
-                    return o.selected
-                  })
-                  .map(function(o) {
-                    var val = "_value" in o ? o._value : o.value
-                    return val
-                  })
-                _vm.capitalOut = $event.target.multiple
-                  ? $$selectedVal
-                  : $$selectedVal[0]
-              }
-            }
-          },
-          [
-            _c("option", { attrs: { disabled: "", value: "null" } }, [
-              _vm._v(" Capital ")
-            ]),
-            _vm._v(" "),
-            _vm._l(_vm.buildings, function(building) {
-              return building.built
-                ? _c("option", { domProps: { value: building.index } }, [
-                    _vm._v("\n        " + _vm._s(building.title) + "\n      ")
-                  ])
-                : _vm._e()
             })
-          ],
-          2
-        ),
+          : _vm._e(),
+        _vm._v(" "),
+        _vm.capitalOut === null && _vm.commodityOut === null
+          ? _c(
+              "label",
+              { staticClass: "radiotag", attrs: { for: "timeOut" } },
+              [_vm._v("Time")]
+            )
+          : _vm._e(),
         _vm._v(" "),
         _c("br"),
         _vm._v(" "),
-        _c(
-          "select",
-          {
-            directives: [
+        _vm.timeOut === null && _vm.commodityOut === null
+          ? _c(
+              "select",
               {
-                name: "model",
-                rawName: "v-model",
-                value: _vm.commodityOut,
-                expression: "commodityOut"
-              }
-            ],
-            on: {
-              change: function($event) {
-                var $$selectedVal = Array.prototype.filter
-                  .call($event.target.options, function(o) {
-                    return o.selected
-                  })
-                  .map(function(o) {
-                    var val = "_value" in o ? o._value : o.value
-                    return val
-                  })
-                _vm.commodityOut = $event.target.multiple
-                  ? $$selectedVal
-                  : $$selectedVal[0]
-              }
-            }
-          },
-          [
-            _c("option", { attrs: { disabled: "", value: "null" } }, [
-              _vm._v(" Commodities ")
-            ]),
-            _vm._v(" "),
-            _vm._l(_vm.buildings, function(building) {
-              return _c("option", { domProps: { value: building.index } }, [
-                _vm._v(
-                  "\n        " + _vm._s(building.commodityTitle) + "\n      "
-                )
-              ])
-            })
-          ],
-          2
-        ),
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.capitalOut,
+                    expression: "capitalOut"
+                  }
+                ],
+                on: {
+                  change: function($event) {
+                    var $$selectedVal = Array.prototype.filter
+                      .call($event.target.options, function(o) {
+                        return o.selected
+                      })
+                      .map(function(o) {
+                        var val = "_value" in o ? o._value : o.value
+                        return val
+                      })
+                    _vm.capitalOut = $event.target.multiple
+                      ? $$selectedVal
+                      : $$selectedVal[0]
+                  }
+                }
+              },
+              [
+                _c("option", { attrs: { disabled: "", value: "null" } }, [
+                  _vm._v(" Capital ")
+                ]),
+                _vm._v(" "),
+                _vm._l(_vm.buildings, function(building) {
+                  return building.built
+                    ? _c("option", { domProps: { value: building.index } }, [
+                        _vm._v(
+                          "\n        " + _vm._s(building.title) + "\n      "
+                        )
+                      ])
+                    : _vm._e()
+                })
+              ],
+              2
+            )
+          : _vm._e(),
         _vm._v(" "),
-        _vm.commodityOut != null
+        _c("br"),
+        _vm._v(" "),
+        _vm.timeOut === null && _vm.capitalOut === null
+          ? _c(
+              "select",
+              {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.commodityOut,
+                    expression: "commodityOut"
+                  }
+                ],
+                on: {
+                  change: function($event) {
+                    var $$selectedVal = Array.prototype.filter
+                      .call($event.target.options, function(o) {
+                        return o.selected
+                      })
+                      .map(function(o) {
+                        var val = "_value" in o ? o._value : o.value
+                        return val
+                      })
+                    _vm.commodityOut = $event.target.multiple
+                      ? $$selectedVal
+                      : $$selectedVal[0]
+                  }
+                }
+              },
+              [
+                _c("option", { attrs: { disabled: "", value: "null" } }, [
+                  _vm._v(" Commodities ")
+                ]),
+                _vm._v(" "),
+                _vm._l(_vm.buildings, function(building) {
+                  return _c("option", { domProps: { value: building.index } }, [
+                    _vm._v(
+                      "\n        " +
+                        _vm._s(building.commodityTitle) +
+                        "\n      "
+                    )
+                  ])
+                })
+              ],
+              2
+            )
+          : _vm._e(),
+        _vm._v(" "),
+        _vm.commodityOut != null || _vm.timeOut != null
           ? _c("input", {
               directives: [
                 {
@@ -12619,97 +12741,159 @@ var render = function() {
             })
           : _vm._e(),
         _vm._v(" "),
+        _vm.timeOut != null
+          ? _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model.number",
+                  value: _vm.lengthOut,
+                  expression: "lengthOut",
+                  modifiers: { number: true }
+                }
+              ],
+              attrs: { placeholder: "How long" },
+              domProps: { value: _vm.lengthOut },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.lengthOut = _vm._n($event.target.value)
+                },
+                blur: function($event) {
+                  return _vm.$forceUpdate()
+                }
+              }
+            })
+          : _vm._e(),
+        _vm._v(" "),
         _c("br"),
         _vm._v(" "),
         _c("p", [_vm._v("Accepting")]),
         _vm._v(" "),
-        _c(
-          "select",
-          {
-            directives: [
-              {
-                name: "model",
-                rawName: "v-model",
-                value: _vm.capitalIn,
-                expression: "capitalIn"
+        _vm.capitalIn === null && _vm.commodityIn === null
+          ? _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.timeIn,
+                  expression: "timeIn"
+                }
+              ],
+              staticClass: "radiobutton",
+              attrs: { type: "radio", id: "timeIn", value: "Time" },
+              domProps: { checked: _vm._q(_vm.timeIn, "Time") },
+              on: {
+                change: function($event) {
+                  _vm.timeIn = "Time"
+                }
               }
-            ],
-            on: {
-              change: function($event) {
-                var $$selectedVal = Array.prototype.filter
-                  .call($event.target.options, function(o) {
-                    return o.selected
-                  })
-                  .map(function(o) {
-                    var val = "_value" in o ? o._value : o.value
-                    return val
-                  })
-                _vm.capitalIn = $event.target.multiple
-                  ? $$selectedVal
-                  : $$selectedVal[0]
-              }
-            }
-          },
-          [
-            _c("option", { attrs: { disabled: "", value: "null" } }, [
-              _vm._v(" Capital ")
-            ]),
-            _vm._v(" "),
-            _vm._l(_vm.allBuildings, function(building) {
-              return _c("option", { domProps: { value: building.index } }, [
-                _vm._v("\n        " + _vm._s(building.title) + "\n      ")
-              ])
             })
-          ],
-          2
-        ),
+          : _vm._e(),
+        _vm._v(" "),
+        _vm.capitalIn === null && _vm.commodityIn === null
+          ? _c("label", { staticClass: "radiotag", attrs: { for: "timeIn" } }, [
+              _vm._v("Time")
+            ])
+          : _vm._e(),
         _vm._v(" "),
         _c("br"),
         _vm._v(" "),
-        _c(
-          "select",
-          {
-            directives: [
+        _vm.timeIn === null && _vm.commodityIn === null
+          ? _c(
+              "select",
               {
-                name: "model",
-                rawName: "v-model",
-                value: _vm.commodityIn,
-                expression: "commodityIn"
-              }
-            ],
-            on: {
-              change: function($event) {
-                var $$selectedVal = Array.prototype.filter
-                  .call($event.target.options, function(o) {
-                    return o.selected
-                  })
-                  .map(function(o) {
-                    var val = "_value" in o ? o._value : o.value
-                    return val
-                  })
-                _vm.commodityIn = $event.target.multiple
-                  ? $$selectedVal
-                  : $$selectedVal[0]
-              }
-            }
-          },
-          [
-            _c("option", { attrs: { disabled: "", value: "null" } }, [
-              _vm._v(" Commodities ")
-            ]),
-            _vm._v(" "),
-            _vm._l(_vm.allBuildings, function(building) {
-              return _c("option", { domProps: { value: building.index } }, [
-                _vm._v(
-                  "\n        " + _vm._s(building.commodityTitle) + "\n      "
-                )
-              ])
-            })
-          ],
-          2
-        ),
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.capitalIn,
+                    expression: "capitalIn"
+                  }
+                ],
+                on: {
+                  change: function($event) {
+                    var $$selectedVal = Array.prototype.filter
+                      .call($event.target.options, function(o) {
+                        return o.selected
+                      })
+                      .map(function(o) {
+                        var val = "_value" in o ? o._value : o.value
+                        return val
+                      })
+                    _vm.capitalIn = $event.target.multiple
+                      ? $$selectedVal
+                      : $$selectedVal[0]
+                  }
+                }
+              },
+              [
+                _c("option", { attrs: { disabled: "", value: "null" } }, [
+                  _vm._v(" Capital ")
+                ]),
+                _vm._v(" "),
+                _vm._l(_vm.allBuildings, function(building) {
+                  return _c("option", { domProps: { value: building.index } }, [
+                    _vm._v("\n        " + _vm._s(building.title) + "\n      ")
+                  ])
+                })
+              ],
+              2
+            )
+          : _vm._e(),
         _vm._v(" "),
-        _vm.commodityIn != null
+        _c("br"),
+        _vm._v(" "),
+        _vm.capitalIn === null && _vm.timeIn === null
+          ? _c(
+              "select",
+              {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.commodityIn,
+                    expression: "commodityIn"
+                  }
+                ],
+                on: {
+                  change: function($event) {
+                    var $$selectedVal = Array.prototype.filter
+                      .call($event.target.options, function(o) {
+                        return o.selected
+                      })
+                      .map(function(o) {
+                        var val = "_value" in o ? o._value : o.value
+                        return val
+                      })
+                    _vm.commodityIn = $event.target.multiple
+                      ? $$selectedVal
+                      : $$selectedVal[0]
+                  }
+                }
+              },
+              [
+                _c("option", { attrs: { disabled: "", value: "null" } }, [
+                  _vm._v(" Commodities ")
+                ]),
+                _vm._v(" "),
+                _vm._l(_vm.allBuildings, function(building) {
+                  return _c("option", { domProps: { value: building.index } }, [
+                    _vm._v(
+                      "\n        " +
+                        _vm._s(building.commodityTitle) +
+                        "\n      "
+                    )
+                  ])
+                })
+              ],
+              2
+            )
+          : _vm._e(),
+        _vm._v(" "),
+        _vm.commodityIn != null || _vm.timeIn != null
           ? _c("input", {
               directives: [
                 {
@@ -12728,6 +12912,33 @@ var render = function() {
                     return
                   }
                   _vm.amountIn = _vm._n($event.target.value)
+                },
+                blur: function($event) {
+                  return _vm.$forceUpdate()
+                }
+              }
+            })
+          : _vm._e(),
+        _vm._v(" "),
+        _vm.timeIn != null
+          ? _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model.number",
+                  value: _vm.lengthIn,
+                  expression: "lengthIn",
+                  modifiers: { number: true }
+                }
+              ],
+              attrs: { placeholder: "How long" },
+              domProps: { value: _vm.lengthIn },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.lengthIn = _vm._n($event.target.value)
                 },
                 blur: function($event) {
                   return _vm.$forceUpdate()
@@ -25332,7 +25543,7 @@ __webpack_require__.r(__webpack_exports__);
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-//registers packages sent to the server
+//registers packages sent to the server and handles accepted offers
 
 var packets = {};
 
@@ -25346,14 +25557,19 @@ module.exports = {
       var offered = null;
       var received = null;
       //handle offerAccepted
-      if (returnPacket.offer.offerType === 'capital') {
+      if (returnPacket.offer.offerType === 'time') {
+        //negative to differentiate in changeMaxTime
+        this.changeMaxTime(returnPacket.offer.amountOut * -1, returnPacket.offer.lengthOut);
+      } else if (returnPacket.offer.offerType === 'capital') {
         this.buildings[returnPacket.offer.toTrade].owned = false;
         offered = "a" + returnPacket.offer.tradeTitle;
       } else if (returnPacket.offer.offerType === 'commodity') {
         this.buildings[returnPacket.offer.toTrade].commodityAmount -= returnPacket.offer.amountOut;
         offered = returnPacket.offer.amountOut + " " + returnPacket.offer.tradeTitle;
       }
-      if (returnPacket.offer.acceptType === 'capital') {
+      if (returnPacket.offer.acceptType === 'time') {
+        this.changeMaxTime(returnPacket.offer.amountIn, returnPacket.offer.lengthIn);
+      } else if (returnPacket.offer.acceptType === 'capital') {
         this.buildings[returnPacket.offer.toAccept].owned = true;
         received = "a" + returnPacket.offer.acceptTitle;
       } else if (returnPacket.offer.acceptType === 'commodity') {
@@ -25490,6 +25706,7 @@ const Template = `
     <button @click="startTimer"> Start Timer </button>
     <button @click="stopTimer"> Stop Timer </button>
     <button @click="removeBuilding(0)"> Remove Farm </button>
+    <button @click="changeMaxTime(-20, 5)"> Change Time </button>
     <span class="open" id="notificationButton" @click="toggleNotifications">
       <img class="icon" :src="notificationIcon" />
     </span>
@@ -25510,7 +25727,7 @@ const Template = `
       :myOffers="myOffers"
       :otherOffers="otherOffers"
       :options="marketOptions"/>
-    <tempus-commodities :buildings="buildings"/>
+    <tempus-commodities :buildings="buildings" :maxTime="maxTime"/>
     <svg class="tempus tempus-board" :viewBox="viewCoords">
       <path fill="none" stroke="blue" :d="svgOutline"> </path>
       <tempus-time x="1" y="1" size="50" @drag="doDrag"/>
@@ -25545,6 +25762,7 @@ const Template = `
       :config="tradeDialogConfig"
       :buildings="showingBuildings"
       :allBuildings="buildings"
+      :maxTime="maxTime"
       v-on:toggle-trade-dialog="toggleTradeDialog"
       v-on:post-offer="postOffer"
       />
@@ -25622,7 +25840,10 @@ const Config = {
       screenIsBlank: false,
       dialogToClose: null,
       newNotification: false,
-      notifications: []
+      notifications: [],
+      maxTime: 100,
+      timeOut: { index: 201, title: 'Time Out', percent: 0 },
+      timers: [] //{amount, cb}
     };
   },
   computed: {
@@ -25652,7 +25873,8 @@ const Config = {
     },
     numActiveTimeUsers: function () {
       var num = 0;
-      for (var i = 0; i < this.timeUsers.length; i++) {
+      for (var i = 1; i < this.timeUsers.length; i++) {
+        //start at 1 to avoid timeOut
         if (this.timeUsers[i].percent != 0) {
           num++;
         }
@@ -25765,14 +25987,14 @@ const Config = {
           break;
         }
       }
-      //if percent already at 100
-      if (this.timeUsers[index].percent == 100) {
+      //if percent already at max allowed
+      if (this.timeUsers[index].percent >= this.maxTime && index != 0) {
         return;
       }
       //if idleness has greater than 0 and not incrementing idleness, take from idleness
-      if (this.timeUsers[0].percent != 0 && index != 0) {
+      if (this.timeUsers[1].percent != 0 && index != 1) {
         this.timeUsers[index].percent++;
-        this.timeUsers[0].percent--;
+        this.timeUsers[1].percent--;
         return;
       }
       //if iterator needed
@@ -25792,16 +26014,16 @@ const Config = {
         return;
       }
       //if idleness is 100, add to Health
-      if (this.timeUsers[0].percent == 100 && index == 0) {
-        this.timeUsers[0].percent--;
-        this.timeUsers[1].percent++;
+      if (this.timeUsers[1].percent >= this.maxTime && index == 1) {
+        this.timeUsers[1].percent--;
+        this.timeUsers[2].percent++;
         return;
       }
       this.rebalancePercent(index, 'down');
     },
     rebalancePercent: function (index, direction) {
       //find available timeUser to modify
-      while (this.numActiveTimeUsers > 2 && this.timeUsersIterator === 0 || this.timeUsers[this.timeUsersIterator].percent == 0 || index == this.timeUsersIterator) {
+      while (this.numActiveTimeUsers > 2 && this.timeUsersIterator === 1 || this.timeUsers[this.timeUsersIterator].percent == 0 || index == this.timeUsersIterator || this.timeUsersIterator <= 0) {
         this.timeUsersIterator++;
         if (this.timeUsersIterator >= this.timeUsers.length) {
           this.timeUsersIterator = 0;
@@ -25821,6 +26043,20 @@ const Config = {
       this.timeUsersIterator++;
       if (this.timeUsersIterator >= this.timeUsers.length) {
         this.timeUsersIterator = 0;
+      }
+    },
+    changeMaxTime: function (amount, length) {
+      if (amount < 0) {
+        this.maxTime += amount;
+        for (var i = 0; i < Math.abs(amount); i++) {
+          this.incrementPercent(this.timeOut.index);
+        }
+      } else {
+        this.maxTime += amount;
+        this.values[0].percent += amount;
+        for (var i = 0; i < amount; i++) {
+          this.decrementPercent(this.values[0].index);
+        }
       }
     },
     addCommodity: function (index, amount) {
@@ -25897,19 +26133,24 @@ const Config = {
         }
       });
     },
-    postOffer: function (offerType, acceptType, toTrade, amountOut, toAccept, amountIn) {
-      if (amountOut) {
+    postOffer: function (offerType, acceptType, toTrade, amountOut, lengthOut, toAccept, amountIn, lengthIn) {
+      if (amountOut && !lengthOut) {
+        //trading commodities
         this.buildings[toTrade].commodityAmount -= amountOut;
         this.buildings[toTrade].commodityReserved += amountOut;
       }
       var tradeTitle = null;
       var acceptTitle = null;
-      if (offerType === 'capital') {
+      if (offerType === 'time') {
+        tradeTitle = 'Time';
+      } else if (offerType === 'capital') {
         tradeTitle = this.buildings[toTrade].title;
       } else if (offerType === 'commodity') {
         tradeTitle = this.buildings[toTrade].commodityTitle;
       }
-      if (acceptType === 'capital') {
+      if (acceptType === 'time') {
+        acceptTitle = 'Time';
+      } else if (acceptType === 'capital') {
         acceptTitle = this.buildings[toAccept].title;
       } else if (acceptType === 'commodity') {
         acceptTitle = this.buildings[toAccept].commodityTitle;
@@ -25924,8 +26165,10 @@ const Config = {
         acceptTitle: acceptTitle,
         toTrade: toTrade,
         amountOut: amountOut,
+        lengthOut: lengthOut,
         toAccept: toAccept,
         amountIn: amountIn,
+        lengthIn: lengthIn,
         cb: returnPacket => {
           console.log("New message: ", returnPacket.message);
           this.tradeDialogConfig.message = returnPacket.message;
@@ -25999,8 +26242,8 @@ const Config = {
 
     //adds values to timeUsers array
     this.$nextTick(function () {
-      var i = 0;
-      for (i = 0; i < this.values.length; i++) {
+      this.timeUsers.push(this.timeOut);
+      for (var i = 0; i < this.values.length; i++) {
         if (this.values[i].arrows == true) {
           this.timeUsers.push(this.values[i]);
         }
@@ -26013,6 +26256,15 @@ const Config = {
             //30000 = five minutes
             this.stopTimer();
             this.gameOver();
+          }
+          //counts trading timers
+          for (var i = 0; i < this.timers.length; i++) {
+            this.timers[i].amount--;
+            if (this.timers[i].amount <= 0) {
+              //timer has finished counting
+              this.timers[i].cb();
+              this.timers.splice(i, 1);
+            }
           }
         }
         this.timeCounter++;

@@ -1,4 +1,4 @@
-//registers packages sent to the server
+//registers packages sent to the server and handles accepted offers
 
 var packets = {}
 
@@ -12,7 +12,10 @@ module.exports={
       var offered = null
       var received = null
       //handle offerAccepted
-      if (returnPacket.offer.offerType === 'capital') {
+      if (returnPacket.offer.offerType === 'time') { //negative to differentiate in changeMaxTime
+        this.changeMaxTime(returnPacket.offer.amountOut * -1, returnPacket.offer.lengthOut)
+      }
+      else if (returnPacket.offer.offerType === 'capital') {
         this.buildings[returnPacket.offer.toTrade].owned = false
         offered = "a" + returnPacket.offer.tradeTitle
       }
@@ -20,7 +23,10 @@ module.exports={
         this.buildings[returnPacket.offer.toTrade].commodityAmount -= returnPacket.offer.amountOut
         offered = returnPacket.offer.amountOut + " " + returnPacket.offer.tradeTitle
       }
-      if (returnPacket.offer.acceptType === 'capital') {
+      if (returnPacket.offer.acceptType === 'time') {
+        this.changeMaxTime(returnPacket.offer.amountIn, returnPacket.offer.lengthIn)
+      }
+      else if (returnPacket.offer.acceptType === 'capital') {
         this.buildings[returnPacket.offer.toAccept].owned = true
         received = "a" + returnPacket.offer.acceptTitle
       }
