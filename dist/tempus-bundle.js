@@ -25717,6 +25717,7 @@ const Template = `
       v-on:post-menu="postMenu"
       v-on:add-building="addBuilding"
       v-on:fetch-scores="fetchScores"
+      v-on:none="xyz"
       :config="menuConfig[menuOptions.currMenu]"
       :options="menuOptions"/>
     <tempus-market
@@ -25825,7 +25826,7 @@ const Config = {
         built: false, percent: 0 }, { index: 2, title: 'Hospital', commodityTitle: 'Medicine', commodityAmount: 0, commodityReserved: 0,
         commodityMax: 20, rate: 0.1, position: BuildingStartPos, buildTime: 300, owned: false,
         built: false, percent: 0 }],
-      menuConfig: [{ index: 0, code: 'main', title: 'Menu', prevMenu: null, subMenu: [{ name: 'Buildings', link: 1, method: 'post-menu' }, { name: 'Settings', link: 2, method: 'post-menu' }, { name: 'Scores', link: 3, method: 'post-menu' }] }, { index: 1, code: 'build', title: 'Buildings', prevMenu: null, subMenu: [{ name: 'Farm', link: 0, method: 'add-building' }, { name: 'Factory', link: 1, method: 'add-building' }, { name: 'Hospital', link: 2, method: 'add-building' }] }, { index: 2, code: 'set', title: 'Settings', prevMenu: null, subMenu: [] }, { index: 3, code: 'score', title: 'Scores', prevMenu: null, subMenu: [{ name: 'Update Scores', link: null, method: 'fetch-scores' }] }],
+      menuConfig: [{ index: 0, code: 'main', title: 'Menu', prevMenu: null, subMenu: [{ name: 'Buildings', link: 1, method: 'post-menu' }, { name: 'Settings', link: 2, method: 'post-menu' }, { name: 'Scores', link: 3, method: 'post-menu' }] }, { index: 1, code: 'build', title: 'Buildings', prevMenu: null, subMenu: [{ name: 'Farm', link: 0, method: 'add-building' }, { name: 'Factory', link: 1, method: 'add-building' }, { name: 'Hospital', link: 2, method: 'add-building' }] }, { index: 2, code: 'set', title: 'Settings', prevMenu: null, subMenu: [] }, { index: 3, code: 'score', title: 'Scores', prevMenu: null, subMenu: [{ name: 'Update Scores', link: 0, method: 'fetch-scores' }] }],
       menuOptions: { width: 0, prevMenu: null, currMenu: 0 },
       marketOptions: { width: 0, message: "" },
       values: [{ index: 100, title: 'Idleness', timer: null, arrows: true, percent: 100, mltplr: 0.5, scale: 0 }, { index: 101, title: 'Health', timer: 100, arrows: true, percent: 0, mltplr: 1, scale: 0.5 }, { index: 102, title: 'Comfort', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2 }, { index: 103, title: 'Experiences', timer: null, arrows: true, percent: 0, mltplr: 1, scale: 0.2 }, { index: 104, title: 'Wealth', timer: null, arrows: false, percent: 0, mltplr: 1, scale: 0 }],
@@ -25891,7 +25892,7 @@ const Config = {
     }
   },
   methods: {
-    xyz(n) {
+    xyz() {
       return null;
     },
     doDrag(e) {
@@ -26127,16 +26128,20 @@ const Config = {
       }
     },
     fetchScores: function (index, current) {
+      console.log("fetchScores");
       this.sendPacket({
         type: 'scores',
         id: this.user + this.uniqueId++,
         user: this.user,
         score: Math.floor(this.score),
         cb: returnPacket => {
-          var i = 0;
-          for (i = 0; i < returnPacket.scores.length; i++) {
-            this.menuConfig[3].subMenu.splice(1); //changes the length
-            this.$set(this.menuConfig[3].subMenu, i + 1, returnPacket.scores[i]);
+          this.menuConfig[3].subMenu.splice(1, this.menuConfig[3].subMenu.length - 1); //changes the length
+          for (var i = 0; i < returnPacket.scores.length; i++) {
+            this.menuConfig[3].subMenu.push({
+              name: returnPacket.scores[i],
+              link: 0,
+              method: 'none'
+            });
           }
         }
       });
@@ -26239,6 +26244,15 @@ const Config = {
       } else if (this.dialogToClose === 'notify') {
         this.toggleNotifications();
       }
+    },
+    recordScore: function () {
+      this.sendPacket({
+        type: 'recordScore',
+        id: this.user + this.uniqueId++,
+        user: this.user,
+        score: Math.floor(this.score),
+        cb: returnPacket => {}
+      });
     }
   },
   watch: {
@@ -26277,6 +26291,10 @@ const Config = {
               this.timers.splice(i, 1);
             }
           }
+        }
+        if (this.timeCounter % 300 === 0) {
+          //once every three seconds
+          this.recordScore();
         }
         this.timeCounter++;
       });

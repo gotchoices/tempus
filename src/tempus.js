@@ -31,6 +31,7 @@ const Template = `
       v-on:post-menu="postMenu"
       v-on:add-building="addBuilding"
       v-on:fetch-scores="fetchScores"
+      v-on:none="xyz"
       :config="menuConfig[menuOptions.currMenu]"
       :options="menuOptions"/>
     <tempus-market
@@ -153,7 +154,7 @@ const Config = {
         {name: 'Hospital', link: 2, method: 'add-building',},]},
       {index: 2, code: 'set', title: 'Settings', prevMenu: null, subMenu: [],},
       {index: 3, code: 'score', title: 'Scores', prevMenu: null, subMenu:
-        [{name: 'Update Scores', link: null, method: 'fetch-scores',}],},
+        [{name: 'Update Scores', link: 0, method: 'fetch-scores',}],},
     ],
     menuOptions: {width: 0, prevMenu: null, currMenu: 0,},
     marketOptions: {width: 0, message: ""},
@@ -212,7 +213,7 @@ const Config = {
     },
   },
   methods: {
-    xyz(n) {
+    xyz() {
       return null
     },
     doDrag(e) {
@@ -454,16 +455,20 @@ const Config = {
       }
     },
     fetchScores: function(index, current) {
+      console.log("fetchScores")
       this.sendPacket({
         type: 'scores',
         id: this.user + this.uniqueId++,
         user: this.user,
         score: Math.floor(this.score),
         cb: (returnPacket) => {
-          var i = 0
-          for (i = 0; i < returnPacket.scores.length; i++) {
-            this.menuConfig[3].subMenu.splice(1) //changes the length
-            this.$set(this.menuConfig[3].subMenu, i + 1, returnPacket.scores[i])
+          this.menuConfig[3].subMenu.splice(1, this.menuConfig[3].subMenu.length - 1) //changes the length
+          for (var i = 0; i < returnPacket.scores.length; i++) {
+            this.menuConfig[3].subMenu.push({
+              name: returnPacket.scores[i],
+              link: 0,
+              method: 'none',
+            })
           }
         },
       })
@@ -575,6 +580,15 @@ const Config = {
         this.toggleNotifications()
       }
     },
+    recordScore: function() {
+      this.sendPacket({
+        type: 'recordScore',
+        id: this.user + this.uniqueId++,
+        user: this.user,
+        score: Math.floor(this.score),
+        cb: (returnPacket) => {},
+      })
+    }
   },
   watch: {
     x: function(val) {
@@ -609,6 +623,9 @@ const Config = {
               this.timers.splice(i, 1)
             }
           }
+        }
+        if (this.timeCounter%300 === 0) { //once every three seconds
+          this.recordScore()
         }
         this.timeCounter++
       })

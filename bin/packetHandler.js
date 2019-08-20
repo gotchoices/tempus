@@ -27,6 +27,9 @@ module.exports={
       case 'acceptOffer':
         this.handleAcceptOffer(packet, cb)
         break;
+      case 'recordScore':
+        this.handleRecordScore(packet, cb)
+        break;
       default:
         console.log("Error with sent packet")
     }
@@ -38,14 +41,14 @@ module.exports={
   },
 
   handleScores: function(packet, cb) {
-    db.scores.push[{user: packet.user, score: packet.score}]
-    var tempScores = ['1', '2', '3', '4',]
-    var temp
-    var i = 0
-    for (i = 0; i < db.scores.length; i++) {
-      temp = db.scores.user + ': ' + db.scores.score
+    //db.scores.push({user: packet.user, score: packet.score})
+    console.log(db.scores)
+    var tempScores = []
+    var temp = null
+    for (var i = 0; i < db.scores.length; i++) {
+      temp = db.scores[i].user + ': ' + db.scores[i].score
       console.log(temp)
-      tempScores.push(7)
+      tempScores.push(temp)
     }
     cb({type: 'return', id: packet.id, status: 'good', scores: tempScores,})
   },
@@ -88,6 +91,22 @@ module.exports={
     currOffer.toOriginalUser(currOffer)
     //delete offer
     db.offers.splice(db.offers.indexOf(currOffer), 1)
+  },
+
+  handleRecordScore: function(packet, cb) {
+    if (db.scores.length === 0) {
+      db.scores.push({user: packet.user, score: packet.score})
+    }
+    for (var i = 0; i < db.scores.length; i++) {
+      if (packet.user === db.scores[i].user) {
+        db.scores[i].score = packet.score
+        break
+      }
+      if (i === db.scores.length) {
+        db.scores.push({user: packet.user, score: packet.score})
+      }
+    }
+    cb({type: 'return', id: packet.id, status: 'good',})
   },
 
 }
