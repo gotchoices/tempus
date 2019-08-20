@@ -26058,6 +26058,14 @@ const Config = {
           this.decrementPercent(this.values[0].index);
         }
       }
+      if (length != null) {
+        this.timers.push({
+          amount: amount,
+          cb: () => {
+            this.changeMaxTime(amount * -1, null);
+          }
+        });
+      }
     },
     addCommodity: function (index, amount) {
       this.buildings[index].commodityAmount += amount;
@@ -26257,6 +26265,9 @@ const Config = {
             this.stopTimer();
             this.gameOver();
           }
+        }
+        if (this.timeCounter % 100 === 0) {
+          //once every second
           //counts trading timers
           for (var i = 0; i < this.timers.length; i++) {
             this.timers[i].amount--;
