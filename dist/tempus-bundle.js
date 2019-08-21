@@ -318,6 +318,10 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
 
 
 
@@ -12194,6 +12198,12 @@ var render = function() {
                     ])
                   : _vm._e(),
                 _vm._v(" "),
+                offer.lengthOut
+                  ? _c("p", [
+                      _vm._v(" Length: " + _vm._s(offer.lengthOut) + " seconds")
+                    ])
+                  : _vm._e(),
+                _vm._v(" "),
                 _c("p", [
                   _vm._v(" Accepting: " + _vm._s(offer.acceptTitle) + " ")
                 ]),
@@ -12201,6 +12211,12 @@ var render = function() {
                 offer.amountIn
                   ? _c("p", [
                       _vm._v(" Amount: " + _vm._s(offer.amountIn) + " ")
+                    ])
+                  : _vm._e(),
+                _vm._v(" "),
+                offer.lengthIn
+                  ? _c("p", [
+                      _vm._v(" Length: " + _vm._s(offer.lengthIn) + " seconds")
                     ])
                   : _vm._e()
               ])
@@ -12231,6 +12247,12 @@ var render = function() {
                     ])
                   : _vm._e(),
                 _vm._v(" "),
+                offer.lengthOut
+                  ? _c("p", [
+                      _vm._v(" Length: " + _vm._s(offer.lengthOut) + " seconds")
+                    ])
+                  : _vm._e(),
+                _vm._v(" "),
                 _c("p", [
                   _vm._v(" Accepting: " + _vm._s(offer.acceptTitle) + " ")
                 ]),
@@ -12238,6 +12260,12 @@ var render = function() {
                 offer.amountIn
                   ? _c("p", [
                       _vm._v(" Amount: " + _vm._s(offer.amountIn) + " ")
+                    ])
+                  : _vm._e(),
+                _vm._v(" "),
+                offer.lengthIn
+                  ? _c("p", [
+                      _vm._v(" Length: " + _vm._s(offer.lengthIn) + " seconds")
                     ])
                   : _vm._e(),
                 _vm._v(" "),

@@ -17,8 +17,10 @@
         <div class="offer" v-for="(offer, index) in myOffers">
           <p> Offering: {{offer.tradeTitle}} </p>
           <p v-if="offer.amountOut"> Amount: {{offer.amountOut}} </p>
+          <p v-if="offer.lengthOut"> Length: {{offer.lengthOut}} seconds</p>
           <p> Accepting: {{offer.acceptTitle}} </p>
           <p v-if="offer.amountIn"> Amount: {{offer.amountIn}} </p>
+          <p v-if="offer.lengthIn"> Length: {{offer.lengthIn}} seconds</p>
         </div>
       </div>
       <div class="marketDivider bottom">
@@ -27,8 +29,10 @@
           <p> Name: {{offer.user}} </p>
           <p> Offering: {{offer.tradeTitle}} </p>
           <p v-if="offer.amountOut"> Amount: {{offer.amountOut}} </p>
+          <p v-if="offer.lengthOut"> Length: {{offer.lengthOut}} seconds</p>
           <p> Accepting: {{offer.acceptTitle}} </p>
           <p v-if="offer.amountIn"> Amount: {{offer.amountIn}} </p>
+          <p v-if="offer.lengthIn"> Length: {{offer.lengthIn}} seconds</p>
           <button @click="acceptOffer(offer)">Accept</button>
         </div>
       </div>
