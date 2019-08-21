@@ -11,6 +11,7 @@
         <img class="icon closebtn" :src="backIcon" @click="closeMarket"/>
       </span>
       <button @click="newOffer">New Offer</button>
+      <button @click="refresh">Refresh</button>
       <p> {{options.message}} </p>
       <div class="marketDivider top">
         <h2 class="dividerHeading"> My Offers </h2>
@@ -21,6 +22,7 @@
           <p> Accepting: {{offer.acceptTitle}} </p>
           <p v-if="offer.amountIn"> Amount: {{offer.amountIn}} </p>
           <p v-if="offer.lengthIn"> Length: {{offer.lengthIn}} seconds</p>
+          <button @click="removeOffer(offer)">Remove</button>
         </div>
       </div>
       <div class="marketDivider bottom">
@@ -77,7 +79,14 @@ export default {
       }
       this.otherOffers.splice(this.otherOffers.indexOf(offer), 1)
       this.$emit('accept-offer', offer.id)
-    }
+    },
+    removeOffer: function(offer) {
+      this.$emit('remove-offer', offer.id)
+      this.refresh()
+    },
+    refresh: function() {
+      this.$emit('get-offers')
+    },
   },
 
   mounted: function() {

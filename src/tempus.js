@@ -38,6 +38,8 @@ const Template = `
       v-on:toggle-market="toggleMarket"
       v-on:accept-offer="acceptOffer"
       v-on:toggle-trade-dialog="toggleTradeDialog"
+      v-on:remove-offer="removeOffer"
+      v-on:get-offers="getOffers"
       :buildings="buildings"
       :myOffers="myOffers"
       :otherOffers="otherOffers"
@@ -588,7 +590,22 @@ const Config = {
         score: Math.floor(this.score),
         cb: (returnPacket) => {},
       })
-    }
+    },
+    removeOffer: function(id) {
+      this.sendPacket({
+        type: 'removeOffer',
+        id: this.user + this.uniqueId++,
+        user: this.user,
+        offer: id,
+        cb: (returnPacket) => {
+          this.marketOptions.message = 'Removed Offer'
+          if (returnPacket.offerType === 'commodity') {
+            this.buildings[returnPacket.offer.toTrade].commodityReserved -= returnPacket.offer.amountOut
+            this.buildings[returnPacket.offer.toTrade].commodityAmount += returnPacket.offer.amountOut
+          }
+        }
+      })
+    },
   },
   watch: {
     x: function(val) {

@@ -30,6 +30,9 @@ module.exports={
       case 'recordScore':
         this.handleRecordScore(packet, cb)
         break;
+      case 'removeOffer':
+        this.handleRemoveOffer(packet, cb)
+        break;
       default:
         console.log("Error with sent packet")
     }
@@ -107,6 +110,18 @@ module.exports={
       }
     }
     cb({type: 'return', id: packet.id, status: 'good',})
+  },
+
+  handleRemoveOffer: function(packet, cb) {
+    var tempOffer = null
+    for (var i = 0; i < db.offers.length;  i++) {
+      if (db.offers[i].id === packet.offer) {
+        tempOffer = db.offers[i]
+        db.offers.splice(i, 1)
+        break
+      }
+    }
+    cb({type: 'return', id: packet.id, status: 'good', offer: tempOffer,})
   },
 
 }

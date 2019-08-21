@@ -17,26 +17,18 @@ Client:
     X include in trade dialog
     X error checking
   Visible timer
-  Remove offers
+  X Remove offers
   Scores
     X View Scores
 
 Back end:
-  Protocol - JSON, client driven
-  	client registers with the server, defines call-backs
-      Fix score list
+  X Protocol - JSON, client driven
+  	X client registers with the server, defines call-backs
+      X Fix score list
       X Post offers
       X Offer list
   Logging
   Database
-
-JSON protocol
-  Score
-    {type: 'score', id: uniqueId, user: userId, score: totalScore}
-  Offer
-    {type: offer, id: uniqueId, user: userId, item: itemToTrade, quantity: amountOffered, callback: function}
-  Register
-    {type: register, id: uniqueId, user: userId, cb: displays_"Registered"}
 
 Notes:
 npm run dev-build

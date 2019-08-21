@@ -322,6 +322,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 
 
@@ -358,6 +360,13 @@ const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
       }
       this.otherOffers.splice(this.otherOffers.indexOf(offer), 1);
       this.$emit('accept-offer', offer.id);
+    },
+    removeOffer: function (offer) {
+      this.$emit('remove-offer', offer.id);
+      this.refresh();
+    },
+    refresh: function () {
+      this.$emit('get-offers');
     }
   },
 
@@ -12176,6 +12185,8 @@ var render = function() {
         _vm._v(" "),
         _c("button", { on: { click: _vm.newOffer } }, [_vm._v("New Offer")]),
         _vm._v(" "),
+        _c("button", { on: { click: _vm.refresh } }, [_vm._v("Refresh")]),
+        _vm._v(" "),
         _c("p", [_vm._v(" " + _vm._s(_vm.options.message) + " ")]),
         _vm._v(" "),
         _c(
@@ -12218,7 +12229,19 @@ var render = function() {
                   ? _c("p", [
                       _vm._v(" Length: " + _vm._s(offer.lengthIn) + " seconds")
                     ])
-                  : _vm._e()
+                  : _vm._e(),
+                _vm._v(" "),
+                _c(
+                  "button",
+                  {
+                    on: {
+                      click: function($event) {
+                        return _vm.removeOffer(offer)
+                      }
+                    }
+                  },
+                  [_vm._v("Remove")]
+                )
               ])
             })
           ],
@@ -25752,6 +25775,8 @@ const Template = `
       v-on:toggle-market="toggleMarket"
       v-on:accept-offer="acceptOffer"
       v-on:toggle-trade-dialog="toggleTradeDialog"
+      v-on:remove-offer="removeOffer"
+      v-on:get-offers="getOffers"
       :buildings="buildings"
       :myOffers="myOffers"
       :otherOffers="otherOffers"
@@ -26280,6 +26305,21 @@ const Config = {
         user: this.user,
         score: Math.floor(this.score),
         cb: returnPacket => {}
+      });
+    },
+    removeOffer: function (id) {
+      this.sendPacket({
+        type: 'removeOffer',
+        id: this.user + this.uniqueId++,
+        user: this.user,
+        offer: id,
+        cb: returnPacket => {
+          this.marketOptions.message = 'Removed Offer';
+          if (returnPacket.offerType === 'commodity') {
+            this.buildings[returnPacket.offer.toTrade].commodityReserved -= returnPacket.offer.amountOut;
+            this.buildings[returnPacket.offer.toTrade].commodityAmount += returnPacket.offer.amountOut;
+          }
+        }
       });
     }
   },
