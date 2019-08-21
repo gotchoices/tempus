@@ -47,7 +47,13 @@ const Template = `
     <tempus-commodities :buildings="buildings" :maxTime="maxTime"/>
     <svg class="tempus tempus-board" :viewBox="viewCoords">
       <path fill="none" stroke="blue" :d="svgOutline"> </path>
-      <tempus-time x="1" y="1" size="50" @drag="doDrag"/>
+      <tempus-time
+        x="1"
+        y="1"
+        size="50"
+        :currSeconds="currSeconds"
+        :currMinutes="currMinutes"
+        @drag="doDrag"/>
       <tempus-score v-if="!showRegisterDialog":score="score" :user="user"/>
       <tempus-building
         v-for="(building, index) in showingBuildings"
@@ -182,6 +188,8 @@ const Config = {
     maxTime: 100,
     timeOut: {index: 201, title: 'Time Out', percent: 0},
     timers: [], //{amount, cb}
+    currSeconds: 0,
+    currMinutes: 5,
   }},
   computed: {
     width: function() {return this.maxX - this.minX},
@@ -632,6 +640,13 @@ const Config = {
           }
         }
         if (this.timeCounter%100 === 0) { //once every second
+          //change visible clock time
+          this.currSeconds--
+          if (this.currSeconds < 0) {
+            this.currSeconds = 59
+            this.currMinutes--
+          }
+          //console.log("Time: ", this.currMinutes + ":" + this.currSeconds)
           //counts trading timers
           for (var i = 0; i < this.timers.length; i++) {
             this.timers[i].amount--

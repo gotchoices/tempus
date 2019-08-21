@@ -593,6 +593,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 
 const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
@@ -605,7 +607,9 @@ const NativeSVG = 600; //Original SVG size
     x: { default: 0 },
     y: { default: 0 },
     size: { default: 50 },
-    startTime: { default: 500 }
+    startTime: { default: 500 },
+    currSeconds: Number,
+    currMinutes: Number
   },
   data() {
     return {
@@ -630,6 +634,15 @@ const NativeSVG = 600; //Original SVG size
     },
     sandPos: function () {
       return 90 + (this.startTime - this.curTime) * (265 - 90) / 100;
+    },
+    currSec: function () {
+      var tempSec = null;
+      if (this.currSeconds < 10) {
+        tempSec = '0' + this.currSeconds;
+      } else {
+        tempSec = this.currSeconds;
+      }
+      return tempSec;
     }
   },
 
@@ -12455,7 +12468,7 @@ var render = function() {
   return _c("g", { staticClass: "score" }, [
     _c("text", { attrs: { x: "60", y: "15", "font-size": "10" } }, [
       _vm._v(
-        " " + _vm._s(_vm.user) + "'s score: " + _vm._s(this.roundScore) + " "
+        " " + _vm._s(_vm.user) + "'s score: " + _vm._s(this.displayScore) + " "
       )
     ])
   ])
@@ -12591,7 +12604,16 @@ var render = function() {
           width: "263",
           height: "21"
         }
-      })
+      }),
+      _vm._v(" "),
+      _c(
+        "text",
+        {
+          staticClass: "timer",
+          attrs: { x: "150", y: "700", "font-size": "100" }
+        },
+        [_vm._v(_vm._s(_vm.currMinutes) + ":" + _vm._s(_vm.currSec))]
+      )
     ]
   )
 }
@@ -25784,7 +25806,13 @@ const Template = `
     <tempus-commodities :buildings="buildings" :maxTime="maxTime"/>
     <svg class="tempus tempus-board" :viewBox="viewCoords">
       <path fill="none" stroke="blue" :d="svgOutline"> </path>
-      <tempus-time x="1" y="1" size="50" @drag="doDrag"/>
+      <tempus-time
+        x="1"
+        y="1"
+        size="50"
+        :currSeconds="currSeconds"
+        :currMinutes="currMinutes"
+        @drag="doDrag"/>
       <tempus-score v-if="!showRegisterDialog":score="score" :user="user"/>
       <tempus-building
         v-for="(building, index) in showingBuildings"
@@ -25897,7 +25925,9 @@ const Config = {
       notifications: [],
       maxTime: 100,
       timeOut: { index: 201, title: 'Time Out', percent: 0 },
-      timers: [] //{amount, cb}
+      timers: [], //{amount, cb}
+      currSeconds: 0,
+      currMinutes: 5
     };
   },
   computed: {
@@ -26350,6 +26380,13 @@ const Config = {
         }
         if (this.timeCounter % 100 === 0) {
           //once every second
+          //change visible clock time
+          this.currSeconds--;
+          if (this.currSeconds < 0) {
+            this.currSeconds = 59;
+            this.currMinutes--;
+          }
+          //console.log("Time: ", this.currMinutes + ":" + this.currSeconds)
           //counts trading timers
           for (var i = 0; i < this.timers.length; i++) {
             this.timers[i].amount--;

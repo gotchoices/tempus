@@ -5,7 +5,7 @@
 <template>
 
   <g class="score">
-    <text x="60" y="15" font-size="10"> {{user}}'s score: {{this.roundScore}} </text>
+    <text x="60" y="15" font-size="10"> {{user}}'s score: {{this.displayScore}} </text>
   </g>
 
 </template>

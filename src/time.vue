@@ -29,6 +29,8 @@
 
     <rect class="bottom" x="175" y="459" fill="#F1AF31" width="263" height="21"/>
 
+    <text class="timer" x="150" y="700" font-size="100">{{currMinutes}}:{{currSec}}</text>
+
   </g>
 </template>
 
@@ -45,6 +47,8 @@ export default {
     y:		{default: 0},
     size:	{default: 50},
     startTime:	{default: 500},
+    currSeconds: Number,
+    currMinutes: Number,
   },
   data() { return {
     drag:	false,
@@ -65,6 +69,16 @@ export default {
     sandPos: function () {
       return 90 + ((this.startTime - this.curTime) * (265-90) / 100)
     },
+    currSec: function() {
+      var tempSec = null;
+      if (this.currSeconds < 10) {
+        tempSec = '0' + this.currSeconds
+      }
+      else {
+        tempSec = this.currSeconds
+      }
+      return tempSec
+    }
   },
 
   methods: {
