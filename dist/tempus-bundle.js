@@ -143,6 +143,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 
 const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
@@ -156,7 +158,11 @@ const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
       boxHeight: 30,
       boxWidth: 30,
       timeCounter: 0,
-      currTime: this.build.buildTime
+      currTime: this.build.buildTime,
+      startTimer: null,
+      repeatTimer: null,
+      startTime: 500,
+      repeatTime: 200
     };
   },
   computed: {
@@ -205,6 +211,51 @@ const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
           var amountAdded = this.build.percent * this.build.rate;
           this.$emit('add-commodity', this.build.index, amountAdded);
         }
+      }
+    },
+    incrementPercent: function (index) {
+      //console.log('up: ' + index)
+      this.$emit('increment-percent', index);
+    },
+    decrementPercent: function (index) {
+      //console.log('down')
+      this.$emit('decrement-percent', index);
+    },
+    mouseDown: function (index, direction) {
+      //repeats if held down
+      //console.log('Pressed down')
+      if (this.startTimer) clearTimeout(this.startTimer);
+      if (this.repeatTimer) clearInterval(this.repeatTimer);
+      this.startTimer = setTimeout(() => {
+        //After initial timeout
+        this.startTimer = null;
+        //Start repeating more rapidly
+        if (direction === 'up') {
+          this.repeatTimer = setInterval(this.incrementPercent, this.repeatTime, index);
+        } else if (direction === 'down') {
+          this.repeatTimer = setInterval(this.decrementPercent, this.repeatTime, index);
+        } else {
+          //console.log("error with direction")
+        }
+      }, this.startTime);
+    },
+    mouseUp: function (index, direction) {
+      //console.log("Lifted Up")
+      if (this.startTimer) {
+        //If waiting for button to repeat
+        clearTimeout(this.startTimer); //Cancel that
+        this.startTimer = null;
+        if (direction === 'up') {
+          this.incrementPercent(index); //increment once
+        } else {
+          this.decrementPercent(index); //decrement once
+        }
+      }
+      if (this.repeatTimer) {
+        //If we have already been repeating
+        //console.log('was repeating')
+        clearInterval(this.repeatTimer); //Just quit
+        this.repeatTimer = null;
       }
     }
   },
@@ -947,6 +998,13 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -962,7 +1020,11 @@ const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
       curTime: 500,
       timeCounter: 0,
       totalScore: 0,
-      reducer: 0.0001
+      reducer: 0.0001,
+      startTimer: null,
+      repeatTimer: null,
+      startTime: 500,
+      repeatTime: 200
     };
   },
   computed: {
@@ -970,14 +1032,14 @@ const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
       return this.config.y + (this.startTime - this.curTime) * (230 - this.config.y) / 100;
     },
     upArrow: function () {
-      return `M ${this.config.x + this.config.width * (3 / 4) + this.index * 50}, ${this.config.y + this.config.height / 5}
-     H ${this.config.x + this.config.width * (19 / 20) + this.index * 50}
-     L ${this.config.x + this.config.width * (17 / 20) + this.index * 50}, ${this.config.y + this.config.height * (1 / 15)} Z`;
+      return `M ${this.config.x + this.config.width * (3 / 4) + this.index * 50},
+      ${this.config.y + this.config.height / 5} H ${this.config.x + this.config.width * (19 / 20) + this.index * 50} L ${this.config.x + this.config.width * (17 / 20) + this.index * 50},
+      ${this.config.y + this.config.height * (1 / 15)} Z`;
     },
     downArrow: function () {
-      return `M ${this.config.x + this.config.width * (3 / 4) + this.index * 50}, ${this.config.y + this.config.height * (4 / 5)}
-     H ${this.config.x + this.config.width * (19 / 20) + this.index * 50}
-     L ${this.config.x + this.config.width * (17 / 20) + this.index * 50}, ${this.config.y + this.config.height - this.config.height * (1 / 15)} Z`;
+      return `M ${this.config.x + this.config.width * (3 / 4) + this.index * 50},
+      ${this.config.y + this.config.height * (4 / 5)} H ${this.config.x + this.config.width * (19 / 20) + this.index * 50} L ${this.config.x + this.config.width * (17 / 20) + this.index * 50},
+      ${this.config.y + this.config.height - this.config.height * (1 / 15)} Z`;
     }
   },
 
@@ -990,12 +1052,61 @@ const Timer = __webpack_require__(/*! ./timer.js */ "./src/timer.js");
         this.totalScore = newScore;
       }
       this.$emit('update-score', this.totalScore);
+    },
+    incrementPercent: function (index) {
+      //console.log('up: ' + index)
+      this.$emit('increment-percent', index);
+    },
+    decrementPercent: function (index) {
+      //console.log('down')
+      this.$emit('decrement-percent', index);
+    },
+    mouseDown: function (index, direction) {
+      //repeats if held down
+      //console.log('Pressed down')
+      if (this.startTimer) clearTimeout(this.startTimer);
+      if (this.repeatTimer) clearInterval(this.repeatTimer);
+      this.startTimer = setTimeout(() => {
+        //After initial timeout
+        this.startTimer = null;
+        //Start repeating more rapidly
+        if (direction === 'up') {
+          this.repeatTimer = setInterval(this.incrementPercent, this.repeatTime, index);
+        } else if (direction === 'down') {
+          this.repeatTimer = setInterval(this.decrementPercent, this.repeatTime, index);
+        } else {
+          //console.log("error with direction")
+        }
+      }, this.startTime);
+    },
+    mouseUp: function (index, direction) {
+      //console.log("Lifted Up")
+      if (this.startTimer) {
+        //If waiting for button to repeat
+        clearTimeout(this.startTimer); //Cancel that
+        this.startTimer = null;
+        if (direction === 'up') {
+          this.incrementPercent(index); //increment once
+        } else {
+          this.decrementPercent(index); //decrement once
+        }
+      }
+      if (this.repeatTimer) {
+        //If we have already been repeating
+        //console.log('was repeating')
+        clearInterval(this.repeatTimer); //Just quit
+        this.repeatTimer = null;
+      }
     }
   },
 
   mounted: function () {
     if (this.data.arrows == true) {
       Timer.register(this.data.title + "_" + this._uid, () => {
+        if (this.downPressed || this.upPressed) {
+          //once every Tick
+          this.holdTime++;
+        }
         if (this.timeCounter % 100 === 0) {
           //once every second
           this.curTime -= 1;
@@ -12027,8 +12138,14 @@ var render = function() {
         d: _vm.upArrow
       },
       on: {
-        click: function($event) {
-          return _vm.$emit("increment-percent", _vm.build.index)
+        mousedown: function($event) {
+          return _vm.mouseDown(_vm.build.index, "up")
+        },
+        mouseup: function($event) {
+          return _vm.mouseUp(_vm.build.index, "up")
+        },
+        mouseleave: function($event) {
+          return _vm.mouseUp(_vm.build.index, "up")
         }
       }
     }),
@@ -12042,8 +12159,14 @@ var render = function() {
         d: _vm.downArrow
       },
       on: {
-        click: function($event) {
-          return _vm.$emit("decrement-percent", _vm.build.index)
+        mousedown: function($event) {
+          return _vm.mouseDown(_vm.build.index, "down")
+        },
+        mouseup: function($event) {
+          return _vm.mouseUp(_vm.build.index, "down")
+        },
+        mouseleave: function($event) {
+          return _vm.mouseUp(_vm.build.index, "down")
         }
       }
     }),
@@ -13110,7 +13233,7 @@ var render = function() {
           "font-size": "6px"
         }
       },
-      [_vm._v(" " + _vm._s(_vm.data.title) + " ")]
+      [_vm._v("\n    " + _vm._s(_vm.data.title) + " ")]
     ),
     _vm._v(" "),
     _vm.data.arrows
@@ -13139,8 +13262,14 @@ var render = function() {
             d: _vm.upArrow
           },
           on: {
-            click: function($event) {
-              return _vm.$emit("increment-percent", _vm.data.index)
+            mousedown: function($event) {
+              return _vm.mouseDown(_vm.data.index, "up")
+            },
+            mouseup: function($event) {
+              return _vm.mouseUp(_vm.data.index, "up")
+            },
+            mouseleave: function($event) {
+              return _vm.mouseUp(_vm.data.index, "up")
             }
           }
         })
@@ -13156,8 +13285,14 @@ var render = function() {
             d: _vm.downArrow
           },
           on: {
-            click: function($event) {
-              return _vm.$emit("decrement-percent", _vm.data.index)
+            mousedown: function($event) {
+              return _vm.mouseDown(_vm.data.index, "down")
+            },
+            mouseup: function($event) {
+              return _vm.mouseUp(_vm.data.index, "down")
+            },
+            mouseleave: function($event) {
+              return _vm.mouseUp(_vm.data.index, "down")
             }
           }
         })
@@ -25963,7 +26098,7 @@ const Config = {
           num++;
         }
       }
-      console.log("numActiveTimeUsers: ", num);
+      //console.log("numActiveTimeUsers: ", num)
       return num;
     },
     notificationIcon: function () {

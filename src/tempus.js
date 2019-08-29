@@ -210,7 +210,7 @@ const Config = {
           num++
         }
       }
-      console.log("numActiveTimeUsers: ", num)
+      //console.log("numActiveTimeUsers: ", num)
       return num
     },
     notificationIcon: function() {
